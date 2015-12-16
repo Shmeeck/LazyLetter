@@ -12,7 +12,7 @@ class Config(object):
     """
 
     def __init__(self, path_letters='coverletters', path_save='config',
-                 greeting=None, copy=False, debugout=None):
+                 greeting=None, copy=False, debug=False):
         # designated path to the directory containing the cover letter .txt's
         self.path_letters = self.default_path(path_letters)
         self.path_save = self.default_path(path_save)
@@ -22,10 +22,10 @@ class Config(object):
         else:
             self.greeting = greeting
 
-        if not debugout:
-            self.debugout = sys.stdout
+        if not debug:
+            self.debug = False
         else:
-            self.debugout = debugout
+            self.debug = debug
 
         self.copy = copy
 
@@ -44,35 +44,46 @@ class Config(object):
 
         return result
 
-    def load_dict(self, indict):
+    def load_dict(self, indict, debugout=sys.stdout):
         """
         Loads configuration settings from a dictionary object
         """
         for key in indict:
             if hasattr(self, key):
                 self.__dict__[key] = indict[key]
-            elif self.debugout:
-                output = str("[DEBUG] "+__name__ +
-                             " cannot load invalid key: "+key +
-                             "[value: "+indict[key]+"]"
-                             )
+            elif self.debug:
+                print("[DEBUG] "+__name__ +
+                      " cannot load invalid key: "+key +
+                      "[value: "+indict[key]+"]"
+                      )
 
-                self.debugout.write(output)
+    def save(self, filename="LazyLetter.cfg"):
+        # check to see if the directories exist
+        # if not, make them
+        if not os.path.exists(self.path_save):
+            os.makedirs(self.path_save)
 
-    def save(self, filename="LazyLetter.config"):
-        fpath = os.path.join(self.save_path, filename)
-        temppath = os.path.join(fpath, '.temp')
+        filepath = os.path.join(self.path_save, filename)
+        temppath = filepath + ".temp"
+
+        # 'filename'.temp is used in the event a write error occurs
+        # if the .temp file already exists, it gets discarded
+        if os.path.exists(temppath):
+            os.remove(temppath)
 
         f = open(temppath, 'w')
         f.write(json.dumps(self.__dict__))
         f.close()
 
-        os.rename(temppath, fpath)
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
-    def load(self, filename="LazyLetter.config"):
-        fpath = os.path.join(self.save_path, filename)
+        os.rename(temppath, filepath)
 
-        f = open(fpath, 'r')
+    def load(self, filename="LazyLetter.cfg"):
+        filepath = os.path.join(self.path_save, filename)
+
+        f = open(filepath, 'r')
         self.load_dict(json.loads(f.read()))
         f.close()
 
