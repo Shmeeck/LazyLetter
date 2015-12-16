@@ -2,8 +2,6 @@ import os
 import sys
 import json
 
-print(os.path.dirname(os.path.abspath(__file__)))
-
 
 class Config(object):
 
@@ -12,21 +10,14 @@ class Config(object):
     """
 
     def __init__(self, path_letters='coverletters', path_save='config',
-                 greeting=None, copy=False, debug=False):
+                 greeting="To Whom It May Concern", copy=False, debug=False,
+                 ):
         # designated path to the directory containing the cover letter .txt's
         self.path_letters = self.default_path(path_letters)
         self.path_save = self.default_path(path_save)
 
-        if not greeting:
-            self.greeting = "To Whom It May Concern"
-        else:
-            self.greeting = greeting
-
-        if not debug:
-            self.debug = False
-        else:
-            self.debug = debug
-
+        self.greeting = greeting
+        self.debug = debug
         self.copy = copy
 
     def default_path(self, path):
@@ -59,7 +50,6 @@ class Config(object):
 
     def save(self, filename="LazyLetter.cfg"):
         # check to see if the directories exist
-        # if not, make them
         if not os.path.exists(self.path_save):
             os.makedirs(self.path_save)
 
@@ -67,7 +57,6 @@ class Config(object):
         temppath = filepath + ".temp"
 
         # 'filename'.temp is used in the event a write error occurs
-        # if the .temp file already exists, it gets discarded
         if os.path.exists(temppath):
             os.remove(temppath)
 
@@ -86,7 +75,3 @@ class Config(object):
         f = open(filepath, 'r')
         self.load_dict(json.loads(f.read()))
         f.close()
-
-
-def config_setup(path=None):
-    pass
