@@ -86,8 +86,9 @@ class Config(object):
             return True
         except FileNotFoundError as message:
             if self.debug:
-                print('[DEBUG] Attempted to load ' +
-                      self.current_config_filename + ':' + ' ' + message)
+                print('[DEBUG] Attempted to load',
+                      self.current_config_filename + ':', message,
+                      )
             else:
                 print(self.current_config_filename, "doesn't exist.")
 
@@ -101,6 +102,10 @@ class Config(object):
 
         if os.path.exists(filepath):
             os.remove(filepath)
+
+            return True
+        else:
+            return False
 
     def rename_save(self, new_filename):
         """

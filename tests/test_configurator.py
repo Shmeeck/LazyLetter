@@ -71,22 +71,75 @@ test_cfg_name = "test.cfg"
 def test_save_load():
     """
     Config should save all attributes and values into a json file and then
-    be read back into the config object
+    be read back into the config object. Also, a failed load should return
+    False.
     """
     test_obj = configurator.Config(path_letters="testletters",
                                    greeting="GLaDOS",
                                    path_save=test_path_save,
                                    current_config_filename=test_cfg_name,
                                    )
-    test_obj.save()
-
     result_obj = configurator.Config(path_save=test_path_save,
                                      current_config_filename=test_cfg_name,
                                      )
+
+    test_obj.save()
     result_obj.load()
 
     assert_equals(result_obj.path_letters, test_obj.path_letters)
     assert_equals(result_obj.greeting, test_obj.greeting)
+
+    # failed load testing
+    sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
+    test_obj = configurator.Config(current_config_filename=sillyname)
+    assert_equals(test_obj.load(), False)
+
+
+def test_remove_save():
+    """
+    after a Config() object is saved, remove_save() should be able to remove it
+    and return True, otherwise, False
+    """
+    test_obj = configurator.Config(path_save=test_path_save,
+                                   current_config_filename=test_cfg_name)
+
+    test_obj.save()
+    assert_equals(test_obj.remove_save(), True)
+    assert_equals(test_obj.remove_save(), False)
+
+
+def test_rename_save():
+    """
+    rename_save() should be able to change the value of current_config_filename
+    and alter the save file, should pass back the new name
+    """
+    test_obj = configurator.Config(path_save=test_path_save,
+                                   current_config_filename=test_cfg_name)
+
+    test_obj.save()
+    assert_equals(test_obj.rename_save(test_cfg_name+'2'), test_cfg_name+'2')
+    assert_equals(test_obj.current_config_filename, test_cfg_name+'2')
+
+
+def test_change_save():
+    """
+    change_save() should switch to the given filename.cfg and return said name,
+    if the new filename does not exist, than return the old name that existed
+    prior to the function call.
+    """
+    test_obj = configurator.Config(path_save=test_path_save,
+                                   current_config_filename=test_cfg_name+'3')
+    dest_obj = configurator.Config(path_save=test_path_save,
+                                   current_config_filename=test_cfg_name+'4')
+
+    # return the old name
+    test_obj.save()
+    assert_equals(test_obj.change_save(test_cfg_name+'4'), test_cfg_name+'3')
+
+    # return the new name because it's save file actually exists
+    dest_obj.save()
+    assert_equals(test_obj.change_save(test_cfg_name+'4'), test_cfg_name+'4')
+
 
 
 def teardown():
@@ -100,9 +153,12 @@ def teardown():
 
     if os.path.exists(test_obj.path_save):
         if os.path.exists(filepath):
-            os.remove(os.path.join(test_obj.path_save, test_cfg_name))
+            os.remove(filepath)
         if os.path.exists(temppath):
-            os.remove(os.path.join(test_obj.path_save, test_cfg_name+'.temp'))
+            os.remove(temppath)
+        for i in range(2, 5):
+            if os.path.exists(filepath+str(i)):
+                os.remove(filepath+str(i))
 
         # if the config directory had to be made just for this test, remove it
         if not os.listdir(test_obj.path_save):
