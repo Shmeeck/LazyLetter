@@ -11,13 +11,13 @@ class Config(object):
 
     def __init__(self, path_letters='cover letters', path_save='config',
                  greeting="To Whom It May Concern", copy=False, debug=False,
-                 current_config_filename='default.cfg'
+                 current_filename='default.cfg'
                  ):
         # designated path to the directory containing the cover letter .txt's
         self.path_letters = self.default_path(path_letters)
         self.path_save = self.default_path(path_save)
 
-        self.current_config_filename = current_config_filename
+        self.current_filename = current_filename
         self.greeting = greeting
         self.debug = debug
         self.copy = copy
@@ -54,10 +54,10 @@ class Config(object):
         if not os.path.exists(self.path_save):
             os.makedirs(self.path_save)
 
-        filepath = os.path.join(self.path_save, self.current_config_filename)
+        filepath = os.path.join(self.path_save, self.current_filename)
         temppath = filepath + ".temp"
 
-        # self.current_config_filename.temp is used in the event a write
+        # self.current_filename.temp is used in the event a write
         # error occurs
         if os.path.exists(temppath):
             os.remove(temppath)
@@ -76,7 +76,7 @@ class Config(object):
         Loads a .cfg file into the attributes of the instance, returns T/F
         depending on file existence.
         """
-        filepath = os.path.join(self.path_save, self.current_config_filename)
+        filepath = os.path.join(self.path_save, self.current_filename)
 
         try:
             f = open(filepath, 'r')
@@ -87,10 +87,10 @@ class Config(object):
         except FileNotFoundError as message:
             if self.debug:
                 print('[DEBUG] Attempted to load',
-                      self.current_config_filename + ':', message,
+                      self.current_filename + ':', message,
                       )
             else:
-                print(self.current_config_filename, "doesn't exist.")
+                print(self.current_filename, "doesn't exist.")
 
             return False
 
@@ -98,7 +98,7 @@ class Config(object):
         """
         Removes the associated .cfg save for the current config.
         """
-        filepath = os.path.join(self.path_save, self.current_config_filename)
+        filepath = os.path.join(self.path_save, self.current_filename)
 
         if os.path.exists(filepath):
             os.remove(filepath)
@@ -110,12 +110,12 @@ class Config(object):
     def rename_save(self, new_filename):
         """
         Renames the current config's .cfg file to the given filename, switches
-        the current_config_filename to the argument new_filename.
+        the current_filename to the argument new_filename.
 
         Returns back the passed argument.
         """
         self.remove_save()
-        self.current_config_filename = new_filename
+        self.current_filename = new_filename
         self.save()
 
         return new_filename
@@ -126,10 +126,10 @@ class Config(object):
         NOT save the previous config before opening the new one.
 
         Returns back the passed argument or, if loading fails, the
-        same current_config_filename that existed before this function call.
+        same current_filename that existed before this function call.
         """
-        old_filename = self.current_config_filename
-        self.current_config_filename = new_filename
+        old_filename = self.current_filename
+        self.current_filename = new_filename
 
         if self.load():
             return new_filename
@@ -142,7 +142,7 @@ class ConfigSaver(Config):
     """docstring for ConfigSaver"""
 
     def __init__(self, path_save=None, path_to_configs='config',
-                 current_config_filename='LazyLatter.save'):
+                 current_filename='LazyLatter.save'):
         self.path_save = self.default_path(path_save)
         self.path_to_configs = self.default_path(path_to_configs)
-        self.current_config_filename = current_config_filename
+        self.current_filename = current_filename

@@ -77,10 +77,10 @@ def test_save_load():
     test_obj = configurator.Config(path_letters="testletters",
                                    greeting="GLaDOS",
                                    path_save=test_path_save,
-                                   current_config_filename=test_cfg_name,
+                                   current_filename=test_cfg_name,
                                    )
     result_obj = configurator.Config(path_save=test_path_save,
-                                     current_config_filename=test_cfg_name,
+                                     current_filename=test_cfg_name,
                                      )
 
     test_obj.save()
@@ -91,7 +91,7 @@ def test_save_load():
 
     # failed load testing
     sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    test_obj = configurator.Config(current_config_filename=sillyname)
+    test_obj = configurator.Config(current_filename=sillyname)
     assert_equals(test_obj.load(), False)
 
 
@@ -101,7 +101,7 @@ def test_remove_save():
     and return True, otherwise, False
     """
     test_obj = configurator.Config(path_save=test_path_save,
-                                   current_config_filename=test_cfg_name)
+                                   current_filename=test_cfg_name)
 
     test_obj.save()
     assert_equals(test_obj.remove_save(), True)
@@ -110,15 +110,15 @@ def test_remove_save():
 
 def test_rename_save():
     """
-    rename_save() should be able to change the value of current_config_filename
+    rename_save() should be able to change the value of current_filename
     and alter the save file, should pass back the new name
     """
     test_obj = configurator.Config(path_save=test_path_save,
-                                   current_config_filename=test_cfg_name)
+                                   current_filename=test_cfg_name)
 
     test_obj.save()
     assert_equals(test_obj.rename_save(test_cfg_name+'2'), test_cfg_name+'2')
-    assert_equals(test_obj.current_config_filename, test_cfg_name+'2')
+    assert_equals(test_obj.current_filename, test_cfg_name+'2')
 
 
 def test_change_save():
@@ -128,9 +128,9 @@ def test_change_save():
     prior to the function call.
     """
     test_obj = configurator.Config(path_save=test_path_save,
-                                   current_config_filename=test_cfg_name+'3')
+                                   current_filename=test_cfg_name+'3')
     dest_obj = configurator.Config(path_save=test_path_save,
-                                   current_config_filename=test_cfg_name+'4')
+                                   current_filename=test_cfg_name+'4')
 
     # return the old name
     test_obj.save()
