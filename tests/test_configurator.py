@@ -108,24 +108,25 @@ def test_remove_save():
     assert_equals(test_obj.remove_save(), False)
 
 
-def test_rename_save():
+def test_rename_current_filename():
     """
-    rename_save() should be able to change the value of current_filename
-    and alter the save file, should pass back the new name
+    rename_current_filename() should be able to change the value of
+    current_filename and alter the save file, should pass back the new name
     """
     test_obj = configurator.Config(path_save=test_path_save,
                                    current_filename=test_cfg_name)
 
     test_obj.save()
-    assert_equals(test_obj.rename_save(test_cfg_name+'2'), test_cfg_name+'2')
+    assert_equals(test_obj.rename_current_filename(test_cfg_name+'2'),
+                  test_cfg_name+'2')
     assert_equals(test_obj.current_filename, test_cfg_name+'2')
 
 
-def test_change_save():
+def test_change_config():
     """
-    change_save() should switch to the given filename.cfg and return said name,
-    if the new filename does not exist, than return the old name that existed
-    prior to the function call.
+    change_config() should switch to the given filename.cfg and return said
+    name; if the new filename does not exist, then return the old name that
+    existed prior to the function call
     """
     test_obj = configurator.Config(path_save=test_path_save,
                                    current_filename=test_cfg_name+'3')
@@ -134,12 +135,11 @@ def test_change_save():
 
     # return the old name
     test_obj.save()
-    assert_equals(test_obj.change_save(test_cfg_name+'4'), test_cfg_name+'3')
+    assert_equals(test_obj.change_config(test_cfg_name+'4'), test_cfg_name+'3')
 
     # return the new name because it's save file actually exists
     dest_obj.save()
-    assert_equals(test_obj.change_save(test_cfg_name+'4'), test_cfg_name+'4')
-
+    assert_equals(test_obj.change_config(test_cfg_name+'4'), test_cfg_name+'4')
 
 
 def teardown():

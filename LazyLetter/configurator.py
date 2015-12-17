@@ -106,7 +106,7 @@ class Config(object):
         else:
             return False
 
-    def rename_save(self, new_filename):
+    def rename_current_filename(self, new_filename):
         """
         Renames the current config's .cfg file to the given filename, switches
         the current_filename to the argument new_filename.
@@ -119,7 +119,7 @@ class Config(object):
 
         return new_filename
 
-    def change_save(self, new_filename):
+    def change_config(self, new_filename):
         """
         Switches the current config's .cfg file to the given filename, does
         NOT save the previous config before opening the new one.
