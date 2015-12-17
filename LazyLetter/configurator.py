@@ -1,6 +1,8 @@
 import os
 import json
 
+from . import utility
+
 
 class Config(object):
 
@@ -96,15 +98,10 @@ class Config(object):
     def remove_save(self):
         """
         Removes the associated .cfg save for the current config.
+
+        Returns True on success, otherwise False.
         """
-        filepath = os.path.join(self.path_save, self.current_filename)
-
-        if os.path.exists(filepath):
-            os.remove(filepath)
-
-            return True
-        else:
-            return False
+        return utility.delete_file(self.path_save, self.current_filename)
 
     def rename_current_filename(self, new_filename):
         """

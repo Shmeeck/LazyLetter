@@ -1,5 +1,7 @@
 import os
 
+from . import utility
+
 
 def get_list(config):
     """
@@ -50,11 +52,4 @@ def delete(config, letter_name):
 
     Returns True on success, otherwise False.
     """
-    filepath = os.path.join(config.path_letters, letter_name)
-
-    if os.path.exists(filepath):
-        os.remove(filepath)
-
-        return True
-    else:
-        return False
+    return utility.delete_file(config.path_letters, letter_name)
