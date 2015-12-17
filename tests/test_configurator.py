@@ -76,11 +76,14 @@ def test_save_load():
     test_obj = configurator.Config(path_letters="testletters",
                                    greeting="GLaDOS",
                                    path_save=test_path_save,
+                                   current_config_filename=test_cfg_name,
                                    )
-    test_obj.save(test_cfg_name)
+    test_obj.save()
 
-    result_obj = configurator.Config(path_save=test_path_save)
-    result_obj.load(test_cfg_name)
+    result_obj = configurator.Config(path_save=test_path_save,
+                                     current_config_filename=test_cfg_name,
+                                     )
+    result_obj.load()
 
     assert_equals(result_obj.path_letters, test_obj.path_letters)
     assert_equals(result_obj.greeting, test_obj.greeting)
@@ -95,11 +98,12 @@ def teardown():
     filepath = os.path.join(test_obj.path_save, test_cfg_name)
     temppath = filepath + '.temp'
 
-    if os.path.exists(filepath):
-        os.remove(os.path.join(test_obj.path_save, test_cfg_name))
-    if os.path.exists(temppath):
-        os.remove(os.path.join(test_obj.path_save, test_cfg_name+'.temp'))
+    if os.path.exists(test_obj.path_save):
+        if os.path.exists(filepath):
+            os.remove(os.path.join(test_obj.path_save, test_cfg_name))
+        if os.path.exists(temppath):
+            os.remove(os.path.join(test_obj.path_save, test_cfg_name+'.temp'))
 
-    # if the config directory had to be made just for this test, remove it
-    if not os.listdir(test_obj.path_save):
-        os.removedirs(test_obj.path_save)
+        # if the config directory had to be made just for this test, remove it
+        if not os.listdir(test_obj.path_save):
+            os.removedirs(test_obj.path_save)
