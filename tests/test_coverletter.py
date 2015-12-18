@@ -4,7 +4,10 @@ from LazyLetter import coverletter
 from LazyLetter.configurator import Config
 from nose.tools import *
 
-test_config = Config(path_letters='test_cover-letters')
+test_config = Config(path_letters='test_cover-letters',
+                     debug=False,
+                     debuglog=None,
+                     )
 test_lettername1 = ['test_awesomecompany.txt',
                     "I think {company} is great!\n\n\nSincerely,\nMe",
                     ]
@@ -50,9 +53,15 @@ def test_get():
     get() should return:
         1.  the contents of the cover letter file with the name of the passed
             string.
-        2.  # THIS IS WHERE I LEFT OFF
+        2.  a blank string if there's no file
     """
-    # FINISH ME
+    # --- 1 ---
+    result = coverletter.get(test_config, test_lettername1[0])
+    assert_equals(result, test_lettername1[1])
+
+    # --- 2 ---
+    result = coverletter.get(test_config, "THISSOULDNTeverexistnever20193")
+    assert_equals(result, "")
 
 
 def teardown():
