@@ -35,13 +35,8 @@ def get(config, letter_name):
             f.close()
             return result
     except FileNotFoundError as message:
-        if config.debug:
-            print('[DEBUG] Attempted to load',
-                  letter_name + ':', message,
-                  )
-        else:
-            print(letter_name, 'does not exist.')
-
+        config.write_debug(get.__name__, "Attempted to load "+letter_name +
+                           ': '+str(message))
         return ""
 
 

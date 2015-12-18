@@ -1,12 +1,18 @@
 import os
 
 
-def delete_file(path, filename=None):
+def filename_join(path, filename=None):
     if filename:
-        path = os.path.join(path, filename)
+        return os.path.join(path, filename)
+    else:
+        return path
 
-    if os.path.exists(path):
-        os.remove(path)
+
+def delete_file(path, filename=None):
+    filepath = filename_join(path, filename)
+
+    if os.path.exists(filepath):
+        os.remove(filepath)
 
         return True
     else:

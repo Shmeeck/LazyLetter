@@ -32,6 +32,33 @@ def test_default_path():
     assert_equals(test_obj.default_path(result_path), result_path)
 
 
+def test_write_debug():
+    """
+    write_debug() method should return:
+        1.  an error string containing the function where the bug occurred and
+            the detailed message, no file if debuglog is unspecified
+        2.  a file containing something similar to the above string is debuglog
+            is a string
+    """
+    test_obj = configurator.Config(debug=True)
+    filepath = os.path.join(test_obj.default_path(), 'test_debug.log')
+
+    # --- 1 ---
+    result = test_obj.write_debug(test_write_debug.__name__,
+                                  "failed because reasons")
+    assert_in("test_write_debug", result)
+    assert_in("failed because reasons", result)
+    assert_raises(FileNotFoundError, open, filepath, 'r')
+
+    # --- 2 ---
+    test_obj = configurator.Config(debug=True, debuglog="test_debug.log")
+    test_obj.write_debug(test_write_debug.__name__,
+                         "failed because reasons again")
+
+    with open(filepath, 'r') as f:
+        assert_in("failed because reasons again", f.read())
+
+
 def test_load_dict():
     """
     load_dict method should save the following into the Config object:
@@ -150,6 +177,10 @@ def teardown():
 
     filepath = os.path.join(test_obj.path_save, test_cfg_name)
     temppath = filepath + '.temp'
+    logpath = os.path.join(test_obj.default_path(), 'test_debug.log')
+
+    if os.path.exists(logpath):
+        os.remove(logpath)
 
     if os.path.exists(test_obj.path_save):
         if os.path.exists(filepath):
