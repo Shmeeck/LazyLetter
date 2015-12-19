@@ -64,6 +64,19 @@ def test_get():
     assert_equals(result, "")
 
 
+def test_delete():
+    """
+    delete() should return:
+        1.  True if the file exists and was deleted successfully.
+        2.  False if otherwise
+    """
+    # --- 1 ---
+    assert_equals(coverletter.delete(test_config, test_lettername1[0]), True)
+
+    # --- 2 ---
+    assert_equals(coverletter.delete(test_config, test_lettername1[0]), False)
+
+
 def teardown():
     dirpath = test_config.path_letters
 
