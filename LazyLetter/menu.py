@@ -19,8 +19,12 @@ def _filter_options(lower_options, letter):
     working_options = []
 
     for option in lower_options:
-        if letter in option:
-            working_options.append(option)
+        # start after 0 position, 0th letter is the overall index value
+        if len(option) <= 1:
+            continue
+        if letter in option[1:]:
+            new_option = option.replace(letter, '', 1)
+            working_options.append(new_option)
 
     return working_options
 
