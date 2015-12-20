@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 def filename_join(path, filename=None):
@@ -17,3 +18,10 @@ def delete_file(path, filename=None):
         return True
     else:
         return False
+
+
+def clear_screen():
+    try:
+        clear = os.system('cls')
+    except clear == 1:
+        clear = os.system('clear')

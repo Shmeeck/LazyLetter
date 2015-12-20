@@ -34,6 +34,9 @@ def test__filter_options():
     assert_equals('3wffles', result[2])
     assert_equals(len(result), 3)
 
+    result = menu._filter_options(result, 'f')
+    assert_equals('3wfles', result[0])
+
 
 def test__parse_options():
     """
@@ -49,7 +52,7 @@ def test__parse_options():
     test_list = ['Generate Cover Letter', 'Settings', 'Exit']
 
     # --- 1 ---
-    assert_equals(menu._parse_options(test_list, 'eXiT'), 2)
+    assert_equals(menu._parse_options(test_list, 'gENe'), 0)
     assert_equals(menu._parse_options(test_list, '2'), 1)
 
     # --- 2 ---

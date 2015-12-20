@@ -1,6 +1,5 @@
-import os
-
 from . import coverletter
+from . import utility
 
 
 def _list_options(options, pre_spaces=4):
@@ -34,6 +33,8 @@ def _parse_options(options, answer):
     WIP - instead of a -2 return, maybe a tuple of the many options?
     WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
     -2 if 'Exit' is passed.
+    WIP - add positional requirement, 'gen' returns 'settings' as well as
+    'generate'
 
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
@@ -77,5 +78,11 @@ def hub(config):
                   "option, or option number, below:"
                   )
     while True:
+        utility.clear_screen()
+
         print(welcome)
         print(_list_options(options))
+
+        # testing
+        print(_parse_options(options, input(' >')))
+        input('Press ENTER to continue...')
