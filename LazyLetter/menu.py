@@ -32,6 +32,8 @@ def _filter_options(lower_options, letter):
 def _parse_options(options, answer):
     """
     WIP - instead of a -2 return, maybe a tuple of the many options?
+    WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
+    -2 if 'Exit' is passed.
 
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
@@ -39,7 +41,15 @@ def _parse_options(options, answer):
     Returns the index-value of the matching option, -1 if nothing matches, or
     -2 if too many things match.
     """
-    if type(answer) == str:
+    try:
+        answer = int(answer)
+        answer -= 1  # user options list is 1-based
+
+        if answer >= 0 and answer < len(options):
+            return answer
+        else:
+            return -1
+    except ValueError:
         # --- Remove case sensitivity issues ---
         lower_options = [None] * len(options)
 
@@ -59,14 +69,6 @@ def _parse_options(options, answer):
             return -2
         else:
             return int(lower_options[0][0])
-    else:
-        answer = int(answer)
-        answer -= 1  # user options list is 1-based
-
-        if answer >= 0 and answer < len(options):
-            return answer
-        else:
-            return -1
 
 
 def hub(config):

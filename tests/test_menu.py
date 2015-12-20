@@ -33,3 +33,28 @@ def test__filter_options():
     assert_equals('1test bkery', result[1])
     assert_equals('3wffles', result[2])
     assert_equals(len(result), 3)
+
+
+def test__parse_options():
+    """
+    when given a list of options and an answer (either an int or string), this
+    should return:
+        1.  an index int of the matching option for use in the original
+            options list
+        2.  -1 if there are no matches
+        3.  -2 if there are multiple matches
+
+    case should not be a factor
+    """
+    test_list = ['Generate Cover Letter', 'Settings', 'Exit']
+
+    # --- 1 ---
+    assert_equals(menu._parse_options(test_list, 'eXiT'), 2)
+    assert_equals(menu._parse_options(test_list, '2'), 1)
+
+    # --- 2 ---
+    assert_equals(menu._parse_options(test_list, 'setq'), -1)
+    assert_equals(menu._parse_options(test_list, '4'), -1)
+
+    # --- 3 ---
+    assert_equals(menu._parse_options(test_list, 'I'), -2)
