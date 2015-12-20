@@ -24,18 +24,19 @@ def test__filter_options():
     input assumes all characters are lowercase and the first character being
     the original index since the result list the original positions
     """
-    test_list = ['0i like caake', '1test bakery',
-                 '2who put this here', '3waffles',
-                 '4']
+    test_list = [[0, 'i like caake'], [1, 'test bakery'],
+                 [2, 'who put this here'], [3, 'waffles'],
+                 [4, '']]
     result = menu._filter_options(test_list, 'a')
 
-    assert_equals('0i like cake', result[0])
-    assert_equals('1test bkery', result[1])
-    assert_equals('3wffles', result[2])
+    assert_equals('i like cake', result[0][1])
+    assert_equals('test bkery', result[1][1])
+    assert_equals('wffles', result[2][1])
+    assert_equals(3, result[2][0])
     assert_equals(len(result), 3)
 
     result = menu._filter_options(result, 'f')
-    assert_equals('3wfles', result[0])
+    assert_equals('wfles', result[0][1])
 
 
 def test__parse_options():

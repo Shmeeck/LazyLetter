@@ -18,11 +18,10 @@ def _filter_options(lower_options, letter):
     working_options = []
 
     for option in lower_options:
-        # start after 0 position, 0th letter is the overall index value
-        if len(option) <= 1:
+        if len(option[1]) == 0:
             continue
-        if letter in option[1:]:
-            new_option = option.replace(letter, '', 1)
+        if letter in option[1]:
+            new_option = [option[0], option[1].replace(letter, '', 1)]
             working_options.append(new_option)
 
     return working_options
@@ -55,7 +54,7 @@ def _parse_options(options, answer):
         lower_options = [None] * len(options)
 
         for i, option in enumerate(options):
-            lower_options[i] = str(i) + option.lower()
+            lower_options[i] = [i, option.lower()]
 
         answer = answer.replace(' ', '').lower()
         # --------------------------------------
@@ -69,7 +68,7 @@ def _parse_options(options, answer):
         if len(lower_options) > 1:
             return -2
         else:
-            return int(lower_options[0][0])
+            return lower_options[0][0]
 
 
 def hub(config):
