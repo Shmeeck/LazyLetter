@@ -169,7 +169,7 @@ class ConfigSaver(Config):
         self.current_filename = current_filename
 
 
-main_config = Config()
+main_config = Config(debug=True)
 
 
 def get_config():

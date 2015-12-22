@@ -41,8 +41,8 @@ def clear_screen():
 
 
 def timedelta_string(delta):
-    minutes, remainder = divmod(abs(delta.microseconds), (10**6)*60*60)
-    seconds, remainder = divmod(remainder, (10**6)*60)
-    milliseconds = remainder // 10**3
+    minutes, remainder = divmod(abs(delta.seconds), 60)
+    seconds = remainder
+    milliseconds = abs(delta.microseconds) // 10**3
 
     return str(minutes), str(seconds), str(milliseconds)

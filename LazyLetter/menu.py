@@ -79,14 +79,11 @@ def _parse_options(options, answer):
 
 def debug_timer(func):
     def inner(*args, **kwargs):
-        start_time = None
-
         if get_config().debug:
             start_time = datetime.datetime.now()
 
-        result = func(*args, **kwargs)
+            result = func(*args, **kwargs)
 
-        if get_config().debug:
             delta = datetime.datetime.now() - start_time
             delta_string = utility.timedelta_string(delta)
 
@@ -95,6 +92,8 @@ def debug_timer(func):
                           delta_string[2] + 'ms'
                           )
             get_config().write_debug(func.__name__, message)
+        else:
+            result = func(*args, **kwargs)
 
         return result
 
