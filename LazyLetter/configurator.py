@@ -165,3 +165,6 @@ class ConfigSaver(Config):
         self.path_save = self.default_path(path_save)
         self.path_to_configs = self.default_path(path_to_configs)
         self.current_filename = current_filename
+
+
+main_config = Config()

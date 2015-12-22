@@ -25,3 +25,11 @@ def clear_screen():
         clear = os.system('cls')
     except clear == 1:
         clear = os.system('clear')
+
+
+def timedelta_string(delta):
+    minutes, remainder = divmod(abs(delta.microseconds), (10**6)*60*60)
+    seconds, remainder = divmod(remainder, (10**6)*60)
+    milliseconds = remainder // 10**3
+
+    return str(minutes), str(seconds), str(milliseconds)

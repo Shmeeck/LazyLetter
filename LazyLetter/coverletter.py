@@ -1,15 +1,16 @@
 import os
 
 from . import utility
+from .configurator import main_config
 
 
-def get_list(config):
+def get_list():
     """
     Retrieves a list of cover letters from the selected path located within a
     configurator.Config() object.
     """
     cover_letters = []
-    path_letters = config.path_letters
+    path_letters = main_config.path_letters
     directory_list = os.listdir(path_letters)
 
     # remove all directories in the list
@@ -22,12 +23,12 @@ def get_list(config):
     return cover_letters
 
 
-def get(config, letter_name):
+def get(letter_name):
     """
     Returns a string object containing the contents of one cover letter txt
-    file, returns "" and a debug report (if enabled in config) on fail.
+    file, returns "" and a debug report (if enabled in main_config) on fail.
     """
-    filepath = os.path.join(config.path_letters, letter_name)
+    filepath = os.path.join(main_config.path_letters, letter_name)
 
     try:
         with open(filepath, 'r') as f:
@@ -35,16 +36,16 @@ def get(config, letter_name):
             f.close()
             return result
     except FileNotFoundError as message:
-        config.write_debug(get.__name__, "Attempted to load "+letter_name +
-                           ': '+str(message))
+        main_config.write_debug(get.__name__, "Attempted to load " +
+                                letter_name+': '+str(message))
         return ""
 
 
-def delete(config, letter_name):
+def delete(letter_name):
     """
     Removes a cover letter file within the path_letters path specified within a
-    configurator.Config() object.
+    main_configurator.main_config() object.
 
     Returns True on success, otherwise False.
     """
-    return utility.delete_file(config.path_letters, letter_name)
+    return utility.delete_file(main_config.path_letters, letter_name)

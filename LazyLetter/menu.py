@@ -1,11 +1,17 @@
+import datetime
+
 from . import coverletter
 from . import utility
+from .configurator import main_config
 
 
 def _list_options(options, pre_spaces=4):
     result = ""
     for i, option in enumerate(options):
-        result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option + '\n'
+        result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option
+
+        if not i == len(options)-1:
+            result += '\n'
 
     return result
 
@@ -21,7 +27,9 @@ def _filter_options(lower_options, letter):
         if len(option[1]) == 0:
             continue
         if letter in option[1]:
-            new_option = [option[0], option[1].replace(letter, '', 1)]
+            letter_pos = option[1].find(letter)
+
+            new_option = [option[0], option[1][letter_pos+1:]]
             working_options.append(new_option)
 
     return working_options
@@ -71,8 +79,40 @@ def _parse_options(options, answer):
             return lower_options[0][0]
 
 
-def hub(config):
-    options = ['Generate Cover Letter', 'Settings', 'Exit']
+def debug_timer(func):
+    def inner(*args, **kwargs):
+        start_time = None
+
+        if main_config.debug:
+            start_time = datetime.datetime.now()
+
+        result = func(*args, **kwargs)
+
+        if main_config.debug:
+            delta = datetime.datetime.now() - start_time
+            delta_string = utility.timedelta_string(delta)
+
+            message = str("completed in " +
+                          delta_string[0] + 'm, ' + delta_string[1] + 's, ' +
+                          delta_string[2] + 'ms'
+                          )
+            main_config.write_debug(func.__name__, message)
+
+        return result
+
+    return inner
+
+
+@debug_timer
+def parse_options(options, user_in):
+    return _parse_options(options, user_in)
+
+
+def hub():
+    options = ['Generate Cover Letter', 'Settings', 'Exit',
+               'Testing Bullcrap', 'Do Nothing', 'Eat Cheese',
+               'Poop'
+               ]
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
@@ -82,6 +122,7 @@ def hub(config):
         print(welcome)
         print(_list_options(options))
 
-        # testing
-        print(_parse_options(options, input(' >')))
+        user_in = input('>')
+        parse_options(options, user_in)
+
         input('Press ENTER to continue...')
