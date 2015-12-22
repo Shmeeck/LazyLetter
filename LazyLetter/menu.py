@@ -40,8 +40,6 @@ def _parse_options(options, answer):
     WIP - instead of a -2 return, maybe a tuple of the many options?
     WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
     -2 if 'Exit' is passed.
-    WIP - add positional requirement, 'gen' returns 'settings' as well as
-    'generate'
 
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
