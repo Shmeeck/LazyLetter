@@ -13,7 +13,8 @@ class Config(object):
 
     def __init__(self, path_letters='cover letters', path_save='config',
                  greeting="To Whom It May Concern", copy=False, debug=False,
-                 debuglog=None, current_filename='default.cfg'
+                 debuglog=None, current_filename='default.cfg',
+                 file_type_letters='.txt'
                  ):
         # designated path to the directory containing the cover letter .txt's
         self.path_letters = self.default_path(path_letters)
@@ -24,6 +25,7 @@ class Config(object):
         self.debug = debug
         self.debuglog = debuglog
         self.copy = copy
+        self.file_type_letters = file_type_letters
 
     def default_path(self, path=None):
         """

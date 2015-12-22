@@ -7,18 +7,19 @@ from .configurator import get_config
 def get_list():
     """
     Retrieves a list of cover letters from the selected path located within a
-    configurator.Config() object.
+    configurator.Config() object. Cover letter file extensions must match the
+    extension specified within the get_config().file_type_letters attribute.
     """
     cover_letters = []
     path_letters = get_config().path_letters
     directory_list = os.listdir(path_letters)
+    file_type = get_config().file_type_letters
 
     # remove all directories in the list
     for item in directory_list:
-        if os.path.isfile(os.path.join(path_letters, item)) and \
-           '.txt' in item:
-
-            cover_letters.append(item)
+        if os.path.isfile(os.path.join(path_letters, item)):
+            if file_type in item[len(item)-len(file_type):]:
+                cover_letters.append(item)
 
     return cover_letters
 

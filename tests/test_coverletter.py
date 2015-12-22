@@ -6,13 +6,13 @@ from LazyLetter import configurator
 from LazyLetter.configurator import get_config
 from nose.tools import *
 
-test_lettername1 = ['test_awesomecompany.txt',
+test_lettername1 = ['test_awesomecompany' + get_config().file_type_letters,
                     "I think {company} is great!\n\n\nSincerely,\nMe",
                     ]
-test_lettername2 = ['test_throwaway.txt',
+test_lettername2 = ['test_throwaway' + get_config().file_type_letters,
                     "That's why I'm dah BESTEST!",
                     ]
-test_lettername3 = ['test_shouldntwork.tyt',
+test_lettername3 = ['test_shouldntwork' + get_config().file_type_letters+'2',
                     "Dear {greeting},\n\nI got nothing.",
                     ]
 test_letterlist = [test_lettername1,
