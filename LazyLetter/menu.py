@@ -72,6 +72,14 @@ def _parse_options(options, answer):
                 return -1
 
         if len(lower_options) > 1:
+            # if there are more than one results, the final check is to see if
+            # the full answer matches any of the remainders
+            # WIP - Works well for longer answers, not so much for fragments of
+            #       words (i.e 'ett' defaults to the first encounter, letter)
+            for option in lower_options:
+                if answer in options[option[0]].lower():
+                    return option[0]
+
             return -2
         else:
             return lower_options[0][0]
@@ -120,6 +128,6 @@ def hub():
         print(_list_options(options))
 
         user_in = input('>')
-        parse_options(options, user_in)
+        print(parse_options(options, user_in))
 
         input('Press ENTER to continue...')
