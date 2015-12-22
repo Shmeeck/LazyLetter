@@ -8,6 +8,8 @@ from nose.tools import *
 default_config = configurator.Config()
 
 
+# ========================= default_path() test =========================
+
 def test_default_path():
     """
     default_path method should return:
@@ -32,6 +34,10 @@ def test_default_path():
     result_path = os.path.join(base_path, "cheese")
     assert_equals(get_config().default_path(result_path), result_path)
 
+# =======================================================================
+
+
+# ========================== write_debug() test =========================
 
 def setup_test_write_debug():
     get_config().debug = True
@@ -71,6 +77,10 @@ def test_write_debug():
         assert_in("failed because reasons again", f.read())
         f.close()
 
+# =======================================================================
+
+
+# =========================== load_dict() test ==========================
 
 def teardown_load_dict():
     if hasattr(get_config(), 'shouldntexist'):
@@ -115,6 +125,10 @@ def test_load_dict():
 test_path_save = "test_config"
 test_cfg_name = "test.cfg"
 
+# =======================================================================
+
+
+# =========================== save_load() test ==========================
 
 def setup_save_load():
     get_config().path_letters = get_config().default_path("testletters")
@@ -156,6 +170,10 @@ def test_save_load():
     get_config().current_filename = sillyname
     assert_equals(get_config().load(), False)
 
+# =======================================================================
+
+
+# ========================== remove_save() test =========================
 
 def setup_test_remove_save():
     get_config().path_save = test_path_save
@@ -182,6 +200,10 @@ def test_remove_save():
     assert_equals(get_config().remove_save(), True)
     assert_equals(get_config().remove_save(), False)
 
+# =======================================================================
+
+
+# ==================== rename_current_filename() test ===================
 
 def setup_test_rename_current_filename():
     get_config().path_save = test_path_save
@@ -212,6 +234,10 @@ def test_rename_current_filename():
                   test_cfg_name+'2')
     assert_equals(get_config().current_filename, test_cfg_name+'2')
 
+# =======================================================================
+
+
+# ========================= change_config() test ========================
 
 def setup_test_change_config():
     get_config().path_save = test_path_save
@@ -249,6 +275,10 @@ def test_change_config():
     assert_equals(get_config().change_config(test_cfg_name+'2'),
                   test_cfg_name+'2')
 
+# =======================================================================
+
+
+# ========================= cleanup directories =========================
 
 def teardown():
     """
@@ -260,3 +290,5 @@ def teardown():
         os.removedirs(get_config().path_save)
 
     get_config().path_save = default_config.path_save
+
+# =======================================================================
