@@ -1,13 +1,9 @@
 import os
 
 from LazyLetter import coverletter
-from LazyLetter.configurator import Config
+from LazyLetter.configurator import get_config
 from nose.tools import *
 
-test_config = Config(path_letters='test_cover-letters',
-                     debug=False,
-                     debuglog=None,
-                     )
 test_lettername1 = ['test_awesomecompany.txt',
                     "I think {company} is great!\n\n\nSincerely,\nMe",
                     ]
@@ -27,7 +23,9 @@ test_letternamelist = [test_lettername1[0],
 
 
 def setup():
-    dirpath = test_config.path_letters
+    get_config().path_letters = get_config().default_path('test_cover-letters')
+
+    dirpath = get_config().path_letters
 
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
@@ -43,7 +41,7 @@ def test_get_list():
     get_list() should return a list of all of the cover letters within the
     path specified by path_letters in the Config() object
     """
-    result = coverletter.get_list(test_config)
+    result = coverletter.get_list()
 
     assert_equals(result, test_letternamelist)
 
@@ -56,11 +54,11 @@ def test_get():
         2.  a blank string if there's no file
     """
     # --- 1 ---
-    result = coverletter.get(test_config, test_lettername1[0])
+    result = coverletter.get(test_lettername1[0])
     assert_equals(result, test_lettername1[1])
 
     # --- 2 ---
-    result = coverletter.get(test_config, "THISSOULDNTeverexistnever20193")
+    result = coverletter.get("THISSOULDNTeverexistnever20193")
     assert_equals(result, "")
 
 
@@ -71,14 +69,15 @@ def test_delete():
         2.  False if otherwise
     """
     # --- 1 ---
-    assert_equals(coverletter.delete(test_config, test_lettername1[0]), True)
+    assert_equals(coverletter.delete(test_lettername1[0]), True)
 
     # --- 2 ---
-    assert_equals(coverletter.delete(test_config, test_lettername1[0]), False)
+    assert_equals(coverletter.delete(test_lettername1[0]), False)
 
 
 def teardown():
-    dirpath = test_config.path_letters
+
+    dirpath = get_config().path_letters
 
     for letter in test_letterlist:
         filepath = os.path.join(dirpath, letter[0])
@@ -88,3 +87,5 @@ def teardown():
 
     if not os.listdir(dirpath):
         os.removedirs(dirpath)
+
+    get_config().path_letters = get_config().default_path('cover letters')

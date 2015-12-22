@@ -168,3 +168,7 @@ class ConfigSaver(Config):
 
 
 main_config = Config()
+
+
+def get_config():
+    return main_config

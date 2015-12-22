@@ -2,7 +2,7 @@ import datetime
 
 from . import coverletter
 from . import utility
-from .configurator import main_config
+from .configurator import get_config
 
 
 def _list_options(options, pre_spaces=4):
@@ -83,12 +83,12 @@ def debug_timer(func):
     def inner(*args, **kwargs):
         start_time = None
 
-        if main_config.debug:
+        if get_config().debug:
             start_time = datetime.datetime.now()
 
         result = func(*args, **kwargs)
 
-        if main_config.debug:
+        if get_config().debug:
             delta = datetime.datetime.now() - start_time
             delta_string = utility.timedelta_string(delta)
 
@@ -96,7 +96,7 @@ def debug_timer(func):
                           delta_string[0] + 'm, ' + delta_string[1] + 's, ' +
                           delta_string[2] + 'ms'
                           )
-            main_config.write_debug(func.__name__, message)
+            get_config().write_debug(func.__name__, message)
 
         return result
 

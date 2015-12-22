@@ -29,14 +29,14 @@ def test__filter_options():
                  [4, '']]
     result = menu._filter_options(test_list, 'a')
 
-    assert_equals('i like cake', result[0][1])
-    assert_equals('test bkery', result[1][1])
-    assert_equals('wffles', result[2][1])
+    assert_equals('ake', result[0][1])
+    assert_equals('kery', result[1][1])
+    assert_equals('ffles', result[2][1])
     assert_equals(3, result[2][0])
     assert_equals(len(result), 3)
 
     result = menu._filter_options(result, 'f')
-    assert_equals('wfles', result[0][1])
+    assert_equals('fles', result[0][1])
 
 
 def test__parse_options():
