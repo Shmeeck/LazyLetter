@@ -10,14 +10,27 @@ def filename_join(path, filename=None):
 
 
 def delete_file(path, filename=None):
-    filepath = filename_join(path, filename)
+    if type(filename) == list:
+        result = False
 
-    if os.path.exists(filepath) and os.path.isfile(filepath):
-        os.remove(filepath)
+        for single_name in filename:
+            filepath = filename_join(path, single_name)
 
-        return True
+            if os.path.exists(filepath) and os.path.isfile(filepath):
+                os.remove(filepath)
+
+                result = True
+
+        return result
     else:
-        return False
+        filepath = filename_join(path, filename)
+
+        if os.path.exists(filepath) and os.path.isfile(filepath):
+            os.remove(filepath)
+
+            return True
+        else:
+            return False
 
 
 def clear_screen():

@@ -1,10 +1,10 @@
 import os
 
+from LazyLetter import utility
 from LazyLetter import configurator
 from LazyLetter.configurator import get_config
 from nose.tools import *
 
-# ==================== Config() Class Tests ====================
 default_config = configurator.Config()
 
 
@@ -38,10 +38,7 @@ def setup_test_write_debug():
 
 
 def teardown_test_write_debug():
-    filepath = os.path.join(get_config().default_path(), 'test_debug.log')
-
-    if os.path.exists(filepath):
-        os.remove(filepath)
+    utility.delete_file(get_config().default_path(), 'test_debug.log')
 
     get_config().debug = default_config.debug
     get_config().debuglog = default_config.debuglog
@@ -76,7 +73,6 @@ def test_write_debug():
 
 
 def teardown_load_dict():
-
     if hasattr(get_config(), 'shouldntexist'):
         del get_config().shouldntexist
 
@@ -128,14 +124,9 @@ def setup_save_load():
 
 
 def teardown_save_load():
-    filepath = os.path.join(get_config().path_save, test_cfg_name)
-    temppath = filepath + '.temp'
-
-    if os.path.exists(get_config().path_save):
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        if os.path.exists(temppath):
-            os.remove(temppath)
+    utility.delete_file(get_config().path_save, [test_cfg_name,
+                                                 test_cfg_name+'.temp',
+                                                 ])
 
     get_config().path_letters = default_config.path_letters
     get_config().greeting = default_config.greeting
@@ -172,14 +163,9 @@ def setup_test_remove_save():
 
 
 def teardown_test_remove_save():
-    filepath = os.path.join(get_config().path_save, test_cfg_name)
-    temppath = filepath + '.temp'
-
-    if os.path.exists(get_config().path_save):
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        if os.path.exists(temppath):
-            os.remove(temppath)
+    utility.delete_file(get_config().path_save, [test_cfg_name,
+                                                 test_cfg_name+'.temp',
+                                                 ])
 
     get_config().path_save = default_config.path_save
     get_config().current_filename = default_config.current_filename
@@ -203,17 +189,11 @@ def setup_test_rename_current_filename():
 
 
 def teardown_test_rename_current_filename():
-    filepath = os.path.join(get_config().path_save, test_cfg_name)
-
-    if os.path.exists(get_config().path_save):
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        if os.path.exists(filepath+'.temp'):
-            os.remove(filepath+'.temp')
-        if os.path.exists(filepath+'2'):
-            os.remove(filepath+'2')
-        if os.path.exists(filepath+'2'+'.temp'):
-            os.remove(filepath+'2'+'.temp')
+    utility.delete_file(get_config().path_save, [test_cfg_name,
+                                                 test_cfg_name+'.temp',
+                                                 test_cfg_name+'2',
+                                                 test_cfg_name+'2.temp',
+                                                 ])
 
     get_config().path_save = default_config.path_save
     get_config().current_filename = default_config.current_filename
@@ -239,7 +219,14 @@ def setup_test_change_config():
 
 
 def teardown_test_change_config():
-    teardown_test_rename_current_filename()
+    utility.delete_file(get_config().path_save, [test_cfg_name,
+                                                 test_cfg_name+'.temp',
+                                                 test_cfg_name+'2',
+                                                 test_cfg_name+'2.temp',
+                                                 ])
+
+    get_config().path_save = default_config.path_save
+    get_config().current_filename = default_config.current_filename
 
 
 @with_setup(setup_test_change_config, teardown_test_change_config)

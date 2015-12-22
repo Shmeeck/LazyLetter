@@ -1,6 +1,8 @@
 import os
 
+from LazyLetter import utility
 from LazyLetter import coverletter
+from LazyLetter import configurator
 from LazyLetter.configurator import get_config
 from nose.tools import *
 
@@ -20,6 +22,8 @@ test_letterlist = [test_lettername1,
 test_letternamelist = [test_lettername1[0],
                        test_lettername2[0],
                        ]
+
+default_config = configurator.Config()
 
 
 def setup():
@@ -76,16 +80,12 @@ def test_delete():
 
 
 def teardown():
-
     dirpath = get_config().path_letters
 
     for letter in test_letterlist:
-        filepath = os.path.join(dirpath, letter[0])
-
-        if os.path.exists(filepath):
-            os.remove(filepath)
+        utility.delete_file(dirpath, letter[0])
 
     if not os.listdir(dirpath):
         os.removedirs(dirpath)
 
-    get_config().path_letters = get_config().default_path('cover letters')
+    get_config().path_letters = default_config.path_letters
