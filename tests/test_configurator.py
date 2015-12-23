@@ -86,15 +86,15 @@ def teardown_load_dict():
     if hasattr(get_config(), 'shouldntexist'):
         del get_config().shouldntexist
 
-    get_config().path_save = default_config.path_save
+    get_config().path_configs = default_config.path_configs
 
 
 @with_setup(None, teardown_load_dict)
 def test_load_dict():
     """
     load_dict method should save the following into the Config object:
-        1.  a dict containing a key 'path_save' should save its value into the
-            object's attribute with the matching name.
+        1.  a dict containing a key 'path_configs' should save its value into
+            the object's attribute with the matching name.
         2.  a dict containing a key that's not an attribute shouldn't save into
             the Config() object
         3.  both 1 and 2 combined should still work as the method should just
@@ -102,10 +102,10 @@ def test_load_dict():
     """
 
     # --- 1 ---
-    test_dict = {'path_save': os.path.abspath(configurator.__file__)}
+    test_dict = {'path_configs': os.path.abspath(configurator.__file__)}
     get_config().load_dict(test_dict)
 
-    assert_equals(get_config().path_save, test_dict['path_save'])
+    assert_equals(get_config().path_configs, test_dict['path_configs'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
@@ -114,15 +114,15 @@ def test_load_dict():
     assert_equals(hasattr(get_config(), 'shouldntexist'), False)
 
     # --- 3 ---
-    get_config().path_save = get_config().default_path('config')
+    get_config().path_configs = get_config().default_path('config')
 
     test_dict = {**test_dict, **test_dict2}
     get_config().load_dict(test_dict)
 
     assert_equals(hasattr(get_config(), 'shouldntexist'), False)
-    assert_equals(get_config().path_save, test_dict['path_save'])
+    assert_equals(get_config().path_configs, test_dict['path_configs'])
 
-test_path_save = "test_config"
+test_path_configs = "test_config"
 test_cfg_name = "test.cfg"
 
 # =======================================================================
@@ -133,19 +133,19 @@ test_cfg_name = "test.cfg"
 def setup_save_load():
     get_config().path_letters = get_config().default_path("testletters")
     get_config().greeting = "GLaDOS"
-    get_config().path_save = get_config().default_path(test_path_save)
-    get_config().current_filename = test_cfg_name
+    get_config().path_configs = get_config().default_path(test_path_configs)
+    get_config().current_config = test_cfg_name
 
 
 def teardown_save_load():
-    utility.delete_file(get_config().path_save, [test_cfg_name,
-                                                 test_cfg_name+'.temp',
-                                                 ])
+    utility.delete_file(get_config().path_configs, [test_cfg_name,
+                                                    test_cfg_name+'.temp',
+                                                    ])
 
     get_config().path_letters = default_config.path_letters
     get_config().greeting = default_config.greeting
-    get_config().path_save = default_config.path_save
-    get_config().current_filename = default_config.current_filename
+    get_config().path_configs = default_config.path_configs
+    get_config().current_config = default_config.current_config
 
 
 @with_setup(setup_save_load, teardown_save_load)
@@ -155,8 +155,8 @@ def test_save_load():
     be read back into the config object. Also, a failed load should return
     False.
     """
-    result_config = configurator.Config(path_save=test_path_save,
-                                        current_filename=test_cfg_name,
+    result_config = configurator.Config(path_configs=test_path_configs,
+                                        current_config=test_cfg_name,
                                         )
 
     get_config().save()
@@ -167,7 +167,7 @@ def test_save_load():
 
     # failed load testing
     sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    get_config().current_filename = sillyname
+    get_config().current_config = sillyname
     assert_equals(get_config().load(), False)
 
 # =======================================================================
@@ -176,17 +176,17 @@ def test_save_load():
 # ========================== remove_save() test =========================
 
 def setup_test_remove_save():
-    get_config().path_save = test_path_save
-    get_config().current_filename = test_cfg_name
+    get_config().path_configs = test_path_configs
+    get_config().current_config = test_cfg_name
 
 
 def teardown_test_remove_save():
-    utility.delete_file(get_config().path_save, [test_cfg_name,
-                                                 test_cfg_name+'.temp',
-                                                 ])
+    utility.delete_file(get_config().path_configs, [test_cfg_name,
+                                                    test_cfg_name+'.temp',
+                                                    ])
 
-    get_config().path_save = default_config.path_save
-    get_config().current_filename = default_config.current_filename
+    get_config().path_configs = default_config.path_configs
+    get_config().current_config = default_config.current_config
 
 
 @with_setup(setup_test_remove_save, teardown_test_remove_save)
@@ -203,36 +203,36 @@ def test_remove_save():
 # =======================================================================
 
 
-# ==================== rename_current_filename() test ===================
+# ==================== rename_current_config() test ===================
 
-def setup_test_rename_current_filename():
-    get_config().path_save = test_path_save
-    get_config().current_filename = test_cfg_name
-
-
-def teardown_test_rename_current_filename():
-    utility.delete_file(get_config().path_save, [test_cfg_name,
-                                                 test_cfg_name+'.temp',
-                                                 test_cfg_name+'2',
-                                                 test_cfg_name+'2.temp',
-                                                 ])
-
-    get_config().path_save = default_config.path_save
-    get_config().current_filename = default_config.current_filename
+def setup_test_rename_current_config():
+    get_config().path_configs = test_path_configs
+    get_config().current_config = test_cfg_name
 
 
-@with_setup(setup_test_rename_current_filename,
-            teardown_test_rename_current_filename)
-def test_rename_current_filename():
+def teardown_test_rename_current_config():
+    utility.delete_file(get_config().path_configs, [test_cfg_name,
+                                                    test_cfg_name+'.temp',
+                                                    test_cfg_name+'2',
+                                                    test_cfg_name+'2.temp',
+                                                    ])
+
+    get_config().path_configs = default_config.path_configs
+    get_config().current_config = default_config.current_config
+
+
+@with_setup(setup_test_rename_current_config,
+            teardown_test_rename_current_config)
+def test_rename_current_config():
     """
-    rename_current_filename() should be able to change the value of
-    current_filename and alter the save file, should pass back the new name
+    rename_current_config() should be able to change the value of
+    current_config and alter the save file, should pass back the new name
     """
 
     get_config().save()
-    assert_equals(get_config().rename_current_filename(test_cfg_name+'2'),
+    assert_equals(get_config().rename_current_config(test_cfg_name+'2'),
                   test_cfg_name+'2')
-    assert_equals(get_config().current_filename, test_cfg_name+'2')
+    assert_equals(get_config().current_config, test_cfg_name+'2')
 
 # =======================================================================
 
@@ -240,19 +240,19 @@ def test_rename_current_filename():
 # ========================= change_config() test ========================
 
 def setup_test_change_config():
-    get_config().path_save = test_path_save
-    get_config().current_filename = test_cfg_name
+    get_config().path_configs = test_path_configs
+    get_config().current_config = test_cfg_name
 
 
 def teardown_test_change_config():
-    utility.delete_file(get_config().path_save, [test_cfg_name,
-                                                 test_cfg_name+'.temp',
-                                                 test_cfg_name+'2',
-                                                 test_cfg_name+'2.temp',
-                                                 ])
+    utility.delete_file(get_config().path_configs, [test_cfg_name,
+                                                    test_cfg_name+'.temp',
+                                                    test_cfg_name+'2',
+                                                    test_cfg_name+'2.temp',
+                                                    ])
 
-    get_config().path_save = default_config.path_save
-    get_config().current_filename = default_config.current_filename
+    get_config().path_configs = default_config.path_configs
+    get_config().current_config = default_config.current_config
 
 
 @with_setup(setup_test_change_config, teardown_test_change_config)
@@ -262,8 +262,8 @@ def test_change_config():
     name; if the new filename does not exist, then return the old name that
     existed prior to the function call
     """
-    dest_config = configurator.Config(path_save=test_path_save,
-                                      current_filename=test_cfg_name+'2')
+    dest_config = configurator.Config(path_configs=test_path_configs,
+                                      current_config=test_cfg_name+'2')
 
     # return the old name
     get_config().save()
@@ -284,11 +284,11 @@ def teardown():
     """
     if the config directory had to be made just for this test, remove it
     """
-    get_config().path_save = test_path_save
+    get_config().path_configs = test_path_configs
 
-    if not os.listdir(get_config().path_save):
-        os.removedirs(get_config().path_save)
+    if not os.listdir(get_config().path_configs):
+        os.removedirs(get_config().path_configs)
 
-    get_config().path_save = default_config.path_save
+    get_config().path_configs = default_config.path_configs
 
 # =======================================================================

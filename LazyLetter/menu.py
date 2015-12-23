@@ -39,7 +39,7 @@ def _parse_options(options, answer):
     """
     WIP - instead of a -2 return, maybe a tuple of the many options?
     WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
-    -2 if 'Exit' is passed.
+          -2 if 'Exit' is passed.
 
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
@@ -72,8 +72,8 @@ def _parse_options(options, answer):
                 return -1
 
         if len(lower_options) > 1:
-            # if there are more than one results, the final check is to see if
-            # the full answer matches any of the remainders
+            # before returning -2 for 2+ results, check to see if the full
+            # answer matches any of the remaining options
             # WIP - Works well for longer answers, not so much for fragments of
             #       words (i.e 'ett' defaults to the first encounter, letter)
             for option in lower_options:
@@ -114,10 +114,7 @@ def parse_options(options, user_in):
 
 
 def hub():
-    options = ['Generate Cover Letter', 'Settings', 'Exit',
-               'Testing Bullcrap', 'Do Nothing', 'Eat Cheese',
-               'Poop'
-               ]
+    options = ['Generate Cover Letter', 'Settings', 'Exit']
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
@@ -127,7 +124,11 @@ def hub():
         print(welcome)
         print(_list_options(options))
 
-        user_in = input('>')
+        user_in = input('> ')
         print(parse_options(options, user_in))
 
         input('Press ENTER to continue...')
+
+
+def settings():
+    options = ['']
