@@ -1,6 +1,5 @@
 import datetime
 
-from . import coverletter
 from . import utility
 from .configurator import get_config
 
@@ -18,7 +17,7 @@ def _list_options(options, pre_spaces=4):
 
 def _filter_options(lower_options, letter):
     """
-    Takes a lise of lower-cased options and a letter and returns back a list
+    Takes a list of lower-cased options and a letter and returns back a list
     of options that only contain said letter.
     """
     working_options = []
@@ -76,11 +75,18 @@ def _parse_options(options, answer):
             # answer matches any of the remaining options
             # WIP - Works well for longer answers, not so much for fragments of
             #       words (i.e 'ett' defaults to the first encounter, letter)
+            single_result = None
             for option in lower_options:
                 if answer in options[option[0]].lower():
-                    return option[0]
+                    if not single_result:
+                        single_result = option[0]
+                    else:
+                        return -2
 
-            return -2
+            if single_result:
+                return single_result
+            else:
+                return -2
         else:
             return lower_options[0][0]
 

@@ -1,6 +1,6 @@
 import os
 
-from LazyLetter import utility
+from LazyLetter import filewalker
 from LazyLetter import configurator
 from LazyLetter.configurator import get_config
 from nose.tools import *
@@ -44,7 +44,7 @@ def setup_test_write_debug():
 
 
 def teardown_test_write_debug():
-    utility.delete_file(get_config().default_path(), 'test_debug.log')
+    filewalker.delete(get_config().default_path(), 'test_debug.log')
 
     get_config().debug = default_config.debug
     get_config().debuglog = default_config.debuglog
@@ -138,7 +138,7 @@ def setup_save_load():
 
 
 def teardown_save_load():
-    utility.delete_file(get_config().path_configs, [test_cfg_name,
+    filewalker.delete(get_config().path_configs, [test_cfg_name,
                                                     test_cfg_name+'.temp',
                                                     ])
 
@@ -181,7 +181,7 @@ def setup_test_remove_save():
 
 
 def teardown_test_remove_save():
-    utility.delete_file(get_config().path_configs, [test_cfg_name,
+    filewalker.delete(get_config().path_configs, [test_cfg_name,
                                                     test_cfg_name+'.temp',
                                                     ])
 
@@ -211,7 +211,7 @@ def setup_test_rename_current_config():
 
 
 def teardown_test_rename_current_config():
-    utility.delete_file(get_config().path_configs, [test_cfg_name,
+    filewalker.delete(get_config().path_configs, [test_cfg_name,
                                                     test_cfg_name+'.temp',
                                                     test_cfg_name+'2',
                                                     test_cfg_name+'2.temp',
@@ -245,7 +245,7 @@ def setup_test_change_config():
 
 
 def teardown_test_change_config():
-    utility.delete_file(get_config().path_configs, [test_cfg_name,
+    filewalker.delete(get_config().path_configs, [test_cfg_name,
                                                     test_cfg_name+'.temp',
                                                     test_cfg_name+'2',
                                                     test_cfg_name+'2.temp',

@@ -2,7 +2,7 @@ import os
 import json
 import datetime
 
-from . import utility
+from . import filewalker
 
 
 class Config(object):
@@ -122,7 +122,7 @@ class Config(object):
 
         Returns True on success, otherwise False.
         """
-        return utility.delete_file(self.path_configs, self.current_config)
+        return filewalker.delete(self.path_configs, self.current_config)
 
     def rename_current_config(self, new_filename, force=True):
         """
