@@ -2,7 +2,7 @@ import os
 
 from LazyLetter import filewalker
 from LazyLetter import configurator
-from LazyLetter.configurator import get_config
+from LazyLetter.configurator import get_config as config
 from nose.tools import *
 
 default_config = configurator.Config()
@@ -24,15 +24,15 @@ def test_default_path():
 
     # --- 1 ---
     result_path = os.path.dirname(base_path)
-    assert_equals(get_config().default_path(None), result_path)
+    assert_equals(config().default_path(None), result_path)
 
     # --- 2 ---
     result_path = os.path.join(os.path.dirname(base_path), "test")
-    assert_equals(get_config().default_path("test"), result_path)
+    assert_equals(config().default_path("test"), result_path)
 
     # --- 3 ---
     result_path = os.path.join(base_path, "cheese")
-    assert_equals(get_config().default_path(result_path), result_path)
+    assert_equals(config().default_path(result_path), result_path)
 
 # =======================================================================
 
@@ -40,14 +40,14 @@ def test_default_path():
 # ========================== write_debug() test =========================
 
 def setup_test_write_debug():
-    get_config().debug = True
+    config().debug = True
 
 
 def teardown_test_write_debug():
-    filewalker.delete(get_config().default_path(), 'test_debug.log')
+    filewalker.delete(config().default_path(), 'test_debug.log')
 
-    get_config().debug = default_config.debug
-    get_config().debuglog = default_config.debuglog
+    config().debug = default_config.debug
+    config().debuglog = default_config.debuglog
 
 
 @with_setup(setup_test_write_debug, teardown_test_write_debug)
@@ -59,19 +59,19 @@ def test_write_debug():
         2.  a file containing something similar to the above string is debuglog
             is a string
     """
-    filepath = os.path.join(get_config().default_path(), 'test_debug.log')
+    filepath = os.path.join(config().default_path(), 'test_debug.log')
 
     # --- 1 ---
-    result = get_config().write_debug(test_write_debug.__name__,
-                                      "failed because reasons")
+    result = config().write_debug(test_write_debug.__name__,
+                                  "failed because reasons")
     assert_in("test_write_debug", result)
     assert_in("failed because reasons", result)
     assert_raises(FileNotFoundError, open, filepath, 'r')
 
     # --- 2 ---
-    get_config().debuglog = "test_debug.log"
-    get_config().write_debug(test_write_debug.__name__,
-                             "failed because reasons again")
+    config().debuglog = "test_debug.log"
+    config().write_debug(test_write_debug.__name__,
+                         "failed because reasons again")
 
     with open(filepath, 'r') as f:
         assert_in("failed because reasons again", f.read())
@@ -83,10 +83,10 @@ def test_write_debug():
 # =========================== load_dict() test ==========================
 
 def teardown_load_dict():
-    if hasattr(get_config(), 'shouldntexist'):
-        del get_config().shouldntexist
+    if hasattr(config, 'shouldntexist'):
+        del config().shouldntexist
 
-    get_config().path_configs = default_config.path_configs
+    config().path_configs = default_config.path_configs
 
 
 @with_setup(None, teardown_load_dict)
@@ -103,24 +103,24 @@ def test_load_dict():
 
     # --- 1 ---
     test_dict = {'path_configs': os.path.abspath(configurator.__file__)}
-    get_config().load_dict(test_dict)
+    config().load_dict(test_dict)
 
-    assert_equals(get_config().path_configs, test_dict['path_configs'])
+    assert_equals(config().path_configs, test_dict['path_configs'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
-    get_config().load_dict(test_dict2)
+    config().load_dict(test_dict2)
 
-    assert_equals(hasattr(get_config(), 'shouldntexist'), False)
+    assert_equals(hasattr(config, 'shouldntexist'), False)
 
     # --- 3 ---
-    get_config().path_configs = get_config().default_path('config')
+    config().path_configs = config().default_path('config')
 
     test_dict = {**test_dict, **test_dict2}
-    get_config().load_dict(test_dict)
+    config().load_dict(test_dict)
 
-    assert_equals(hasattr(get_config(), 'shouldntexist'), False)
-    assert_equals(get_config().path_configs, test_dict['path_configs'])
+    assert_equals(hasattr(config, 'shouldntexist'), False)
+    assert_equals(config().path_configs, test_dict['path_configs'])
 
 test_path_configs = "test_config"
 test_cfg_name = "test.cfg"
@@ -131,21 +131,21 @@ test_cfg_name = "test.cfg"
 # =========================== save_load() test ==========================
 
 def setup_save_load():
-    get_config().path_letters = get_config().default_path("testletters")
-    get_config().greeting = "GLaDOS"
-    get_config().path_configs = get_config().default_path(test_path_configs)
-    get_config().current_config = test_cfg_name
+    config().path_letters = config().default_path("testletters")
+    config().greeting = "GLaDOS"
+    config().path_configs = config().default_path(test_path_configs)
+    config().current_config = test_cfg_name
 
 
 def teardown_save_load():
-    filewalker.delete(get_config().path_configs, [test_cfg_name,
-                                                    test_cfg_name+'.temp',
-                                                    ])
+    filewalker.delete(config().path_configs, [test_cfg_name,
+                                              test_cfg_name+'.temp',
+                                              ])
 
-    get_config().path_letters = default_config.path_letters
-    get_config().greeting = default_config.greeting
-    get_config().path_configs = default_config.path_configs
-    get_config().current_config = default_config.current_config
+    config().path_letters = default_config.path_letters
+    config().greeting = default_config.greeting
+    config().path_configs = default_config.path_configs
+    config().current_config = default_config.current_config
 
 
 @with_setup(setup_save_load, teardown_save_load)
@@ -159,16 +159,16 @@ def test_save_load():
                                         current_config=test_cfg_name,
                                         )
 
-    get_config().save()
+    config().save()
     result_config.load()
 
-    assert_equals(result_config.path_letters, get_config().path_letters)
-    assert_equals(result_config.greeting, get_config().greeting)
+    assert_equals(result_config.path_letters, config().path_letters)
+    assert_equals(result_config.greeting, config().greeting)
 
     # failed load testing
     sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    get_config().current_config = sillyname
-    assert_equals(get_config().load(), False)
+    config().current_config = sillyname
+    assert_equals(config().load(), False)
 
 # =======================================================================
 
@@ -176,17 +176,17 @@ def test_save_load():
 # ========================== remove_save() test =========================
 
 def setup_test_remove_save():
-    get_config().path_configs = test_path_configs
-    get_config().current_config = test_cfg_name
+    config().path_configs = test_path_configs
+    config().current_config = test_cfg_name
 
 
 def teardown_test_remove_save():
-    filewalker.delete(get_config().path_configs, [test_cfg_name,
-                                                    test_cfg_name+'.temp',
-                                                    ])
+    filewalker.delete(config().path_configs, [test_cfg_name,
+                                              test_cfg_name+'.temp',
+                                              ])
 
-    get_config().path_configs = default_config.path_configs
-    get_config().current_config = default_config.current_config
+    config().path_configs = default_config.path_configs
+    config().current_config = default_config.current_config
 
 
 @with_setup(setup_test_remove_save, teardown_test_remove_save)
@@ -196,9 +196,9 @@ def test_remove_save():
     and return True, otherwise, False
     """
 
-    get_config().save()
-    assert_equals(get_config().remove_save(), True)
-    assert_equals(get_config().remove_save(), False)
+    config().save()
+    assert_equals(config().remove_save(), True)
+    assert_equals(config().remove_save(), False)
 
 # =======================================================================
 
@@ -206,19 +206,19 @@ def test_remove_save():
 # ==================== rename_current_config() test ===================
 
 def setup_test_rename_current_config():
-    get_config().path_configs = test_path_configs
-    get_config().current_config = test_cfg_name
+    config().path_configs = test_path_configs
+    config().current_config = test_cfg_name
 
 
 def teardown_test_rename_current_config():
-    filewalker.delete(get_config().path_configs, [test_cfg_name,
-                                                    test_cfg_name+'.temp',
-                                                    test_cfg_name+'2',
-                                                    test_cfg_name+'2.temp',
-                                                    ])
+    filewalker.delete(config().path_configs, [test_cfg_name,
+                                              test_cfg_name+'.temp',
+                                              test_cfg_name+'2',
+                                              test_cfg_name+'2.temp',
+                                              ])
 
-    get_config().path_configs = default_config.path_configs
-    get_config().current_config = default_config.current_config
+    config().path_configs = default_config.path_configs
+    config().current_config = default_config.current_config
 
 
 @with_setup(setup_test_rename_current_config,
@@ -229,10 +229,10 @@ def test_rename_current_config():
     current_config and alter the save file, should pass back the new name
     """
 
-    get_config().save()
-    assert_equals(get_config().rename_current_config(test_cfg_name+'2'),
+    config().save()
+    assert_equals(config().rename_current_config(test_cfg_name+'2'),
                   test_cfg_name+'2')
-    assert_equals(get_config().current_config, test_cfg_name+'2')
+    assert_equals(config().current_config, test_cfg_name+'2')
 
 # =======================================================================
 
@@ -240,19 +240,19 @@ def test_rename_current_config():
 # ========================= change_config() test ========================
 
 def setup_test_change_config():
-    get_config().path_configs = test_path_configs
-    get_config().current_config = test_cfg_name
+    config().path_configs = test_path_configs
+    config().current_config = test_cfg_name
 
 
 def teardown_test_change_config():
-    filewalker.delete(get_config().path_configs, [test_cfg_name,
-                                                    test_cfg_name+'.temp',
-                                                    test_cfg_name+'2',
-                                                    test_cfg_name+'2.temp',
-                                                    ])
+    filewalker.delete(config().path_configs, [test_cfg_name,
+                                              test_cfg_name+'.temp',
+                                              test_cfg_name+'2',
+                                              test_cfg_name+'2.temp',
+                                              ])
 
-    get_config().path_configs = default_config.path_configs
-    get_config().current_config = default_config.current_config
+    config().path_configs = default_config.path_configs
+    config().current_config = default_config.current_config
 
 
 @with_setup(setup_test_change_config, teardown_test_change_config)
@@ -266,13 +266,13 @@ def test_change_config():
                                       current_config=test_cfg_name+'2')
 
     # return the old name
-    get_config().save()
-    assert_equals(get_config().change_config(test_cfg_name+'2'),
+    config().save()
+    assert_equals(config().change_config(test_cfg_name+'2'),
                   test_cfg_name)
 
     # return the new name because it's save file actually exists
     dest_config.save()
-    assert_equals(get_config().change_config(test_cfg_name+'2'),
+    assert_equals(config().change_config(test_cfg_name+'2'),
                   test_cfg_name+'2')
 
 # =======================================================================
@@ -284,11 +284,11 @@ def teardown():
     """
     if the config directory had to be made just for this test, remove it
     """
-    get_config().path_configs = test_path_configs
+    config().path_configs = test_path_configs
 
-    if not os.listdir(get_config().path_configs):
-        os.removedirs(get_config().path_configs)
+    if not os.listdir(config().path_configs):
+        os.removedirs(config().path_configs)
 
-    get_config().path_configs = default_config.path_configs
+    config().path_configs = default_config.path_configs
 
 # =======================================================================

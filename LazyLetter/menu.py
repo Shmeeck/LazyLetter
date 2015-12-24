@@ -1,7 +1,6 @@
 import datetime
 
-from . import utility
-from .configurator import get_config
+from .configurator import get_config as config
 
 
 def _list_options(options, pre_spaces=4):
@@ -93,7 +92,7 @@ def _parse_options(options, answer):
 
 def debug_timer(func):
     def inner(*args, **kwargs):
-        if get_config().debug:
+        if config().debug:
             start_time = datetime.datetime.now()
 
             result = func(*args, **kwargs)
@@ -105,7 +104,7 @@ def debug_timer(func):
                           delta_string[0] + 'm, ' + delta_string[1] + 's, ' +
                           delta_string[2] + 'ms'
                           )
-            get_config().write_debug(func.__name__, message)
+            config().write_debug(func.__name__, message)
         else:
             result = func(*args, **kwargs)
 
