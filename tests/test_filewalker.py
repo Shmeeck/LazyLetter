@@ -1,7 +1,6 @@
 import os
 
-from LazyLetter import utility
-from LazyLetter import coverletter
+from LazyLetter import filewalker
 from LazyLetter import configurator
 from LazyLetter.configurator import get_config
 from nose.tools import *
@@ -28,6 +27,7 @@ default_config = configurator.Config()
 
 def setup():
     get_config().path_letters = get_config().default_path('test_cover-letters')
+    get_config().file_type_letters = '.txt'
 
     dirpath = get_config().path_letters
 
@@ -45,47 +45,20 @@ def test_get_list():
     get_list() should return a list of all of the cover letters within the
     path specified by path_letters in the Config() object
     """
-    result = coverletter.get_list()
+    result = filewalker.get_list(get_config().path_letters,
+                                 get_config().file_type_letters)
 
     assert_equals(result, test_letternamelist)
-
-
-def test_get():
-    """
-    get() should return:
-        1.  the contents of the cover letter file with the name of the passed
-            string.
-        2.  a blank string if there's no file
-    """
-    # --- 1 ---
-    result = coverletter.get(test_lettername1[0])
-    assert_equals(result, test_lettername1[1])
-
-    # --- 2 ---
-    result = coverletter.get("THISSOULDNTeverexistnever20193")
-    assert_equals(result, "")
-
-
-def test_delete():
-    """
-    delete() should return:
-        1.  True if the file exists and was deleted successfully.
-        2.  False if otherwise
-    """
-    # --- 1 ---
-    assert_equals(coverletter.delete(test_lettername1[0]), True)
-
-    # --- 2 ---
-    assert_equals(coverletter.delete(test_lettername1[0]), False)
 
 
 def teardown():
     dirpath = get_config().path_letters
 
     for letter in test_letterlist:
-        utility.delete_file(dirpath, letter[0])
+        filewalker.delete(dirpath, letter[0])
 
     if not os.listdir(dirpath):
         os.removedirs(dirpath)
 
     get_config().path_letters = default_config.path_letters
+    get_config().file_type_letters = default_config.file_type_letters
