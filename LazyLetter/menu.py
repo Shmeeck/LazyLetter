@@ -15,26 +15,53 @@ def _list_options(options, pre_spaces=4):
     return result
 
 
-def _filter_options(lower_options, letter):
+def _lower_list(li):
+    pass
+
+
+def _filter_options(li, answer):
     """
     Takes a list of lower-cased options and a letter and returns back a list
     of options that only contain said letter.
     """
-    working_options = []
+    result = []
+    answer = answer.lower()
 
-    for option in lower_options:
-        if len(option[1]) == 0:
-            continue
-        if letter in option[1]:
-            letter_pos = option[1].find(letter)
+    for item in li:
+        lower_item = item.lower()
+        letter_pos = 0
+        success = False
 
-            new_option = [option[0], option[1][letter_pos+1:]]
-            working_options.append(new_option)
+        for letter in answer:
+            letter_pos = lower_item.find(letter, letter_pos)
 
-    return working_options
+            if letter_pos < 0:
+                success = False
+                break
+            else:
+                success = True
+
+        if success:
+            result.append(item)
+
+    return result
 
 
-def _parse_options(options, answer):
+def _search_int(li, answer):
+    result = -1  # user options list is 1-based
+
+    try:
+        result += int(answer)
+    except ValueError:
+        return None
+
+    if result >= 0 and result < len(li):
+        return li[result]
+    else:
+        return []
+
+
+def _parse_options(li, answer):
     """
     WIP - instead of a -2 return, maybe a tuple of the many options?
     WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
@@ -46,49 +73,40 @@ def _parse_options(options, answer):
     Returns the index-value of the matching option, -1 if nothing matches, or
     -2 if too many things match.
     """
-    try:
-        answer = int(answer)
-        answer -= 1  # user options list is 1-based
+    # --- Remove case sensitivity issues ---
+    lower_options = [None] * len(options)
 
-        if answer >= 0 and answer < len(options):
-            return answer
-        else:
+    for i, option in enumerate(options):
+        lower_options[i] = i, option.lower()
+
+    answer = answer.replace(' ', '').lower()
+    # --------------------------------------
+
+    for letter in answer:
+        lower_options = _filter_options(lower_options, letter)
+
+        if len(lower_options) == 0:
             return -1
-    except ValueError:
-        # --- Remove case sensitivity issues ---
-        lower_options = [None] * len(options)
 
-        for i, option in enumerate(options):
-            lower_options[i] = [i, option.lower()]
+    if len(lower_options) > 1:
+        # before returning -2 for 2+ results, check to see if the full
+        # answer matches any of the remaining options
+        # WIP - Works well for longer answers, not so much for fragments of
+        #       words (i.e 'ett' defaults to the first encounter, letter)
+        single_result = None
+        for option in lower_options:
+            if answer in options[option[0]].lower():
+                if not single_result:
+                    single_result = option[0]
+                else:
+                    return -2
 
-        answer = answer.replace(' ', '').lower()
-        # --------------------------------------
-
-        for letter in answer:
-            lower_options = _filter_options(lower_options, letter)
-
-            if len(lower_options) == 0:
-                return -1
-
-        if len(lower_options) > 1:
-            # before returning -2 for 2+ results, check to see if the full
-            # answer matches any of the remaining options
-            # WIP - Works well for longer answers, not so much for fragments of
-            #       words (i.e 'ett' defaults to the first encounter, letter)
-            single_result = None
-            for option in lower_options:
-                if answer in options[option[0]].lower():
-                    if not single_result:
-                        single_result = option[0]
-                    else:
-                        return -2
-
-            if single_result:
-                return single_result
-            else:
-                return -2
+        if single_result:
+            return single_result
         else:
-            return lower_options[0][0]
+            return -2
+    else:
+        return lower_options[0][0]
 
 
 def debug_timer(func):

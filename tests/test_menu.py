@@ -24,23 +24,29 @@ def test__filter_options():
     input assumes all characters are lowercase and the first character being
     the original index since the result list the original positions
     """
-    test_list = [[0, 'i like caake'], [1, 'test bakery'],
-                 [2, 'who put this here'], [3, 'waffles'],
-                 [4, '']]
+    test_list = ['i like caake', 'Test Bakery',
+                 'who put this here', 'WAFFLES',
+                 '']
     result = menu._filter_options(test_list, 'a')
 
-    assert_equals('ake', result[0][1])
-    assert_equals('kery', result[1][1])
-    assert_equals('ffles', result[2][1])
-    assert_equals(3, result[2][0])
+    assert_equals('i like caake', result[0])
+    assert_equals('Test Bakery', result[1])
+    assert_equals('WAFFLES', result[2])
     assert_equals(len(result), 3)
 
-    result = menu._filter_options(result, 'f')
-    assert_equals('fles', result[0][1])
+    result = menu._filter_options(test_list, 'WAFF')
+    assert_equals('WAFFLES', result[0])
+
+    result = menu._filter_options(test_list, 'who put this here')
+    assert_equals('who put this here', result[0])
+
+    result = menu._filter_options(test_list, 'el')
+    assert_equals([], result)
 
 
+"""
 def test__parse_options():
-    """
+
     when given a list of options and an answer (either an int or string), this
     should return:
         1.  an index int of the matching option for use in the original
@@ -49,7 +55,7 @@ def test__parse_options():
         3.  -2 if there are multiple matches
 
     case should not be a factor
-    """
+
     test_list = ['Generate Cover Letter', 'Settings', 'Exit']
 
     # --- 1 ---
@@ -62,3 +68,4 @@ def test__parse_options():
 
     # --- 3 ---
     assert_equals(menu._parse_options(test_list, 'I'), -2)
+"""
