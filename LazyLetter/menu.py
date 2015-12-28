@@ -84,15 +84,20 @@ def _parse_options(li, answer):
 
     Returns a list of any matching values.
     """
+    # check, and return single answer or [], if int
     result = _search_int(li, answer)
 
     if result is not None:
         return result
 
+    # search by each letter in the answer, order of letters matter
+    # (by order I mean, ingsttse will not return settings)
     result = _filter_options(li, answer)
     potential_result = []
 
     if len(result) > 1:
+        # last attempt to narrow down the list by trying to match the
+        # entire answer within the each list element
         potential_result = _search_entire(result, answer)
 
         # only return if successful matches were found
