@@ -44,28 +44,42 @@ def test__filter_options():
     assert_equals([], result)
 
 
-"""
 def test__parse_options():
-
+    """
     when given a list of options and an answer (either an int or string), this
     should return:
         1.  an index int of the matching option for use in the original
             options list
-        2.  -1 if there are no matches
-        3.  -2 if there are multiple matches
+        2.  [] if there are no matches
+        3.  a list containing all matches, if there are multiple matches
+        4.  a list containing matched case results if there are multiple
+            matches and a full case match can be found
+        5.  a list containing one match if the answer exactly matches a
+            list option (exactly doesn't include case)
 
     case should not be a factor
+    """
 
-    test_list = ['Generate Cover Letter', 'Settings', 'Exit']
+    test_list = ['Generate Cover Letter', 'Settings', 'Exit', 'Eat Something',
+                 'Save and Exit']
 
     # --- 1 ---
-    assert_equals(menu._parse_options(test_list, 'gENe'), 0)
-    assert_equals(menu._parse_options(test_list, '2'), 1)
+    assert_equals(menu._parse_options(test_list, 'gENe'), [test_list[0]])
+    assert_equals(menu._parse_options(test_list, '2'), [test_list[1]])
 
     # --- 2 ---
-    assert_equals(menu._parse_options(test_list, 'setq'), -1)
-    assert_equals(menu._parse_options(test_list, '4'), -1)
+    assert_equals(menu._parse_options(test_list, 'setq'), [])
+    assert_equals(menu._parse_options(test_list, '6'), [])
 
     # --- 3 ---
-    assert_equals(menu._parse_options(test_list, 'I'), -2)
-"""
+    assert_equals(menu._parse_options(test_list, 'I'), [test_list[1],
+                                                        test_list[2],
+                                                        test_list[3],
+                                                        test_list[4]
+                                                        ])
+
+    # --- 4 ---
+    assert_equals(menu._parse_options(test_list, 'EAT'), [test_list[3]])
+
+    # --- 5 ---
+    assert_equals(menu._parse_options(test_list, 'exit'), [test_list[2]])

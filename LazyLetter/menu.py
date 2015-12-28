@@ -15,33 +15,46 @@ def _list_options(options, pre_spaces=4):
     return result
 
 
-def _lower_list(li):
-    pass
-
-
 def _filter_options(li, answer):
     """
     Takes a list of lower-cased options and a letter and returns back a list
     of options that only contain said letter.
     """
     result = []
-    answer = answer.lower()
+    answer = answer.replace(' ', '')
 
     for item in li:
-        lower_item = item.lower()
         letter_pos = 0
-        success = False
+        success = True
 
-        for letter in answer:
-            letter_pos = lower_item.find(letter, letter_pos)
+        for letter in answer.lower():
+            letter_pos = item.lower().find(letter, letter_pos)
 
             if letter_pos < 0:
                 success = False
                 break
-            else:
-                success = True
 
         if success:
+            result.append(item)
+
+    return result
+
+
+def _search_entire(li, answer):
+    """
+    Attempts to match a given response's entire case within a list of values,
+    returns any successful matches.
+    """
+    result = []
+    answer = answer.lower()
+
+    for item in li:
+        lower_item = item.lower()
+
+        if answer in lower_item:
+            if answer == lower_item:
+                return [item]
+
             result.append(item)
 
     return result
@@ -56,57 +69,37 @@ def _search_int(li, answer):
         return None
 
     if result >= 0 and result < len(li):
-        return li[result]
+        return [li[result]]
     else:
         return []
 
 
 def _parse_options(li, answer):
     """
-    WIP - instead of a -2 return, maybe a tuple of the many options?
     WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
           -2 if 'Exit' is passed.
 
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
 
-    Returns the index-value of the matching option, -1 if nothing matches, or
-    -2 if too many things match.
+    Returns a list of any matching values.
     """
-    # --- Remove case sensitivity issues ---
-    lower_options = [None] * len(options)
+    result = _search_int(li, answer)
 
-    for i, option in enumerate(options):
-        lower_options[i] = i, option.lower()
+    if result is not None:
+        return result
 
-    answer = answer.replace(' ', '').lower()
-    # --------------------------------------
+    result = _filter_options(li, answer)
+    potential_result = []
 
-    for letter in answer:
-        lower_options = _filter_options(lower_options, letter)
+    if len(result) > 1:
+        potential_result = _search_entire(result, answer)
 
-        if len(lower_options) == 0:
-            return -1
+        # only return if successful matches were found
+        if len(potential_result) > 0:
+            return potential_result
 
-    if len(lower_options) > 1:
-        # before returning -2 for 2+ results, check to see if the full
-        # answer matches any of the remaining options
-        # WIP - Works well for longer answers, not so much for fragments of
-        #       words (i.e 'ett' defaults to the first encounter, letter)
-        single_result = None
-        for option in lower_options:
-            if answer in options[option[0]].lower():
-                if not single_result:
-                    single_result = option[0]
-                else:
-                    return -2
-
-        if single_result:
-            return single_result
-        else:
-            return -2
-    else:
-        return lower_options[0][0]
+    return result
 
 
 def debug_timer(func):
