@@ -26,8 +26,7 @@ default_config = configurator.Config
 
 
 def setup():
-    configurator.set_config(configurator.Config())
-    config().path_letters = configurator.default_path('test_cover-letters')
+    config().path_letters = config().default_path('test_cover-letters')
     config().file_type_letters = '.txt'
 
     dirpath = config().path_letters

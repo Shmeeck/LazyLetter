@@ -4,21 +4,10 @@ from . import utility
 from .configurator import get_config as config
 
 
-def _list_options(options, comments=None, pre_spaces=4):
-    """
-    Prints an enumerated list for the user to select from, said list will be
-    1-based for user friendliness. Comments can be added via a separate list
-    that much match 1-to-1 indices with the options list.
-    """
+def _list_options(options, pre_spaces=4):
     result = ""
     for i, option in enumerate(options):
         result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option
-
-        if comments:
-            comment = comments.get(i, '')
-
-            if comment:
-                result += ' (' + comments[i], ')'
 
         if not i == len(options)-1:
             result += '\n'

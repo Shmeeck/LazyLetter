@@ -8,10 +8,6 @@ from nose.tools import *
 default_config = configurator.Config()
 
 
-def setup():
-    configurator.set_config(configurator.Config(debug=True))
-
-
 # ========================= default_path() test =========================
 
 def test_default_path():
@@ -28,15 +24,15 @@ def test_default_path():
 
     # --- 1 ---
     result_path = os.path.dirname(base_path)
-    assert_equals(configurator.default_path(None), result_path)
+    assert_equals(config().default_path(None), result_path)
 
     # --- 2 ---
     result_path = os.path.join(os.path.dirname(base_path), "test")
-    assert_equals(configurator.default_path("test"), result_path)
+    assert_equals(config().default_path("test"), result_path)
 
     # --- 3 ---
     result_path = os.path.join(base_path, "cheese")
-    assert_equals(configurator.default_path(result_path), result_path)
+    assert_equals(config().default_path(result_path), result_path)
 
 # =======================================================================
 
@@ -48,7 +44,7 @@ def setup_test_write_debug():
 
 
 def teardown_test_write_debug():
-    filewalker.delete(configurator.default_path(), 'test_debug.log')
+    filewalker.delete(config().default_path(), 'test_debug.log')
 
     config().debug = default_config.debug
     config().debuglog = default_config.debuglog
@@ -63,7 +59,7 @@ def test_write_debug():
         2.  a file containing something similar to the above string is debuglog
             is a string
     """
-    filepath = os.path.join(configurator.default_path(), 'test_debug.log')
+    filepath = os.path.join(config().default_path(), 'test_debug.log')
 
     # --- 1 ---
     result = config().write_debug(test_write_debug.__name__,
@@ -107,21 +103,21 @@ def test_load_dict():
 
     # --- 1 ---
     test_dict = {'path_configs': os.path.abspath(configurator.__file__)}
-    configurator._load_dict(config(), test_dict)
+    config().load_dict(test_dict)
 
     assert_equals(config().path_configs, test_dict['path_configs'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
-    configurator._load_dict(config(), test_dict2)
+    config().load_dict(test_dict2)
 
     assert_equals(hasattr(config, 'shouldntexist'), False)
 
     # --- 3 ---
-    config().path_configs = configurator.default_path('config')
+    config().path_configs = config().default_path('config')
 
     test_dict = {**test_dict, **test_dict2}
-    configurator._load_dict(config(), test_dict)
+    config().load_dict(test_dict)
 
     assert_equals(hasattr(config, 'shouldntexist'), False)
     assert_equals(config().path_configs, test_dict['path_configs'])
@@ -135,9 +131,9 @@ test_cfg_name = "test.cfg"
 # =========================== save_load() test ==========================
 
 def setup_save_load():
-    config().path_letters = configurator.default_path("testletters")
+    config().path_letters = config().default_path("testletters")
     config().greeting = "GLaDOS"
-    config().path_configs = configurator.default_path(test_path_configs)
+    config().path_configs = config().default_path(test_path_configs)
     config().current_config = test_cfg_name
 
 
