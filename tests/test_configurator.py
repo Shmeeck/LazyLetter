@@ -151,9 +151,9 @@ def teardown_save_load():
 @with_setup(setup_save_load, teardown_save_load)
 def test_save_load():
     """
-    Config should save all attributes and values into a json file and then
-    be read back into the config object. Also, a failed load should return
-    False.
+    Config should save all attributes and values as a dict into a json file
+    and then be read back into the config object. Also, a failed load should
+    return False.
     """
 
     config().save()
@@ -165,7 +165,8 @@ def test_save_load():
 
     # failed load testing
     sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    assert_equals(configurator.Config.load(filepath, sillyname), False)
+    assert_raises(FileNotFoundError, configurator.Config.load, filepath,
+                  sillyname)
 
 # =======================================================================
 

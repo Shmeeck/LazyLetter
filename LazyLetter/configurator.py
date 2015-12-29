@@ -2,8 +2,6 @@ import os
 import json
 import datetime
 
-from . import filewalker
-
 
 class Config(object):
 
@@ -107,16 +105,11 @@ class Config(object):
         filepath = os.path.join(filepath, filename)
         result = cls()
 
-        try:
-            f = open(filepath, 'r')
-            result._load_dict(json.loads(f.read()))
-            f.close()
+        f = open(filepath, 'r')
+        result._load_dict(json.loads(f.read()))
+        f.close()
 
-            return result
-        except FileNotFoundError as message:
-            result.write_debug(cls.load.__name__, "Attempted to load " +
-                               filename+": "+str(message))
-            return False
+        return result
 
 
 class ConfigSaver(Config):
