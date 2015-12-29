@@ -151,7 +151,7 @@ def hub():
         user_in = input('> ')
         print(parse_options(options, user_in))
 
-        input('Press ENTER to continue...')
+        input(config().continue_msg)
 
 
 def settings():
