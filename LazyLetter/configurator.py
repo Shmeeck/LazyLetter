@@ -55,18 +55,6 @@ class Config(object):
 
         return result
 
-    def load_dict(self, indict):
-        """
-        Loads configuration settings from a dictionary object.
-        """
-        for key in indict:
-            if hasattr(self, key):
-                self.__dict__[key] = indict[key]
-            else:
-                self.write_debug(self.load_dict.__name__,
-                                 "Cannot load invalid key: "+key+" (value: " +
-                                 indict[key]+")")
-
     def save(self, force=True):
         """
         Dumps all attributes in dictionary form to a json text file named
@@ -98,65 +86,37 @@ class Config(object):
 
         return True
 
-    def load(self):
+    def _load_dict(self, indict):
+        """
+        Loads configuration settings from a dictionary object.
+        """
+        for key in indict:
+            if hasattr(self, key):
+                setattr(self, key, indict[key])
+            else:
+                self.write_debug(self._load_dict.__name__,
+                                 "Cannot load invalid key: "+key+" (value: " +
+                                 str(indict[key])+")")
+
+    @classmethod
+    def load(cls, filepath, filename):
         """
         Loads a json text file into the attributes of the instance, returns T/F
         depending on file existence.
         """
-        filepath = os.path.join(self.path_configs, self.current_config)
+        filepath = os.path.join(filepath, filename)
+        result = cls()
 
         try:
             f = open(filepath, 'r')
-            self.load_dict(json.loads(f.read()))
+            result._load_dict(json.loads(f.read()))
             f.close()
 
-            return True
+            return result
         except FileNotFoundError as message:
-            self.write_debug(self.load.__name__, "Attempted to load " +
-                             self.current_config+": "+str(message))
+            result.write_debug(cls.load.__name__, "Attempted to load " +
+                               filename+": "+str(message))
             return False
-
-    def remove_save(self):
-        """
-        Removes the associated .cfg save for the current config.
-
-        Returns True on success, otherwise False.
-        """
-        return filewalker.delete(self.path_configs, self.current_config)
-
-    def rename_current_config(self, new_filename, force=True):
-        """
-        Renames the current config's .cfg file to the given filename, switches
-        the current_config to the argument new_filename.
-
-        Returns back the passed argument on success, otherwise returns the
-        filename that existed prior to this function call.
-        """
-        old_filename = self.current_config
-
-        self.remove_save()
-        self.current_config = new_filename
-
-        if self.save(force):
-            return new_filename
-        else:
-            return old_filename
-
-    def change_config(self, new_filename):
-        """
-        Switches the current config's .cfg file to the given filename, does
-        NOT save the previous config before opening the new one.
-
-        Returns back the passed argument or, if loading fails, the
-        same current_config that existed before this function call.
-        """
-        old_filename = self.current_config
-        self.current_config = new_filename
-
-        if self.load():
-            return new_filename
-        else:
-            return old_filename
 
 
 class ConfigSaver(Config):

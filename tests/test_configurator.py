@@ -103,13 +103,13 @@ def test_load_dict():
 
     # --- 1 ---
     test_dict = {'path_configs': os.path.abspath(configurator.__file__)}
-    config().load_dict(test_dict)
+    config()._load_dict(test_dict)
 
     assert_equals(config().path_configs, test_dict['path_configs'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
-    config().load_dict(test_dict2)
+    config()._load_dict(test_dict2)
 
     assert_equals(hasattr(config, 'shouldntexist'), False)
 
@@ -117,7 +117,7 @@ def test_load_dict():
     config().path_configs = config().default_path('config')
 
     test_dict = {**test_dict, **test_dict2}
-    config().load_dict(test_dict)
+    config()._load_dict(test_dict)
 
     assert_equals(hasattr(config, 'shouldntexist'), False)
     assert_equals(config().path_configs, test_dict['path_configs'])
@@ -155,125 +155,17 @@ def test_save_load():
     be read back into the config object. Also, a failed load should return
     False.
     """
-    result_config = configurator.Config(path_configs=test_path_configs,
-                                        current_config=test_cfg_name,
-                                        )
 
     config().save()
-    result_config.load()
+    filepath = config().default_path(test_path_configs)
+    result_config = configurator.Config.load(filepath, test_cfg_name)
 
     assert_equals(result_config.path_letters, config().path_letters)
     assert_equals(result_config.greeting, config().greeting)
 
     # failed load testing
     sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    config().current_config = sillyname
-    assert_equals(config().load(), False)
-
-# =======================================================================
-
-
-# ========================== remove_save() test =========================
-
-def setup_test_remove_save():
-    config().path_configs = test_path_configs
-    config().current_config = test_cfg_name
-
-
-def teardown_test_remove_save():
-    filewalker.delete(config().path_configs, [test_cfg_name,
-                                              test_cfg_name+'.temp',
-                                              ])
-
-    config().path_configs = default_config.path_configs
-    config().current_config = default_config.current_config
-
-
-@with_setup(setup_test_remove_save, teardown_test_remove_save)
-def test_remove_save():
-    """
-    after a Config() object is saved, remove_save() should be able to remove it
-    and return True, otherwise, False
-    """
-
-    config().save()
-    assert_equals(config().remove_save(), True)
-    assert_equals(config().remove_save(), False)
-
-# =======================================================================
-
-
-# ==================== rename_current_config() test ===================
-
-def setup_test_rename_current_config():
-    config().path_configs = test_path_configs
-    config().current_config = test_cfg_name
-
-
-def teardown_test_rename_current_config():
-    filewalker.delete(config().path_configs, [test_cfg_name,
-                                              test_cfg_name+'.temp',
-                                              test_cfg_name+'2',
-                                              test_cfg_name+'2.temp',
-                                              ])
-
-    config().path_configs = default_config.path_configs
-    config().current_config = default_config.current_config
-
-
-@with_setup(setup_test_rename_current_config,
-            teardown_test_rename_current_config)
-def test_rename_current_config():
-    """
-    rename_current_config() should be able to change the value of
-    current_config and alter the save file, should pass back the new name
-    """
-
-    config().save()
-    assert_equals(config().rename_current_config(test_cfg_name+'2'),
-                  test_cfg_name+'2')
-    assert_equals(config().current_config, test_cfg_name+'2')
-
-# =======================================================================
-
-
-# ========================= change_config() test ========================
-
-def setup_test_change_config():
-    config().path_configs = test_path_configs
-    config().current_config = test_cfg_name
-
-
-def teardown_test_change_config():
-    filewalker.delete(config().path_configs, [test_cfg_name,
-                                              test_cfg_name+'.temp',
-                                              test_cfg_name+'2',
-                                              test_cfg_name+'2.temp',
-                                              ])
-
-    config().path_configs = default_config.path_configs
-    config().current_config = default_config.current_config
-
-
-@with_setup(setup_test_change_config, teardown_test_change_config)
-def test_change_config():
-    """
-    change_config() should switch to the given filename.cfg and return said
-    name; if the new filename does not exist, then return the old name that
-    existed prior to the function call
-    """
-    dest_config = configurator.Config(path_configs=test_path_configs,
-                                      current_config=test_cfg_name+'2')
-
-    # return the old name
-    config().save()
-    assert_equals(config().change_config(test_cfg_name+'2'),
-                  test_cfg_name)
-
-    # return the new name because it's save file actually exists
-    dest_config.save()
-    assert_equals(config().change_config(test_cfg_name+'2'),
-                  test_cfg_name+'2')
+    assert_equals(configurator.Config.load(filepath, sillyname), False)
 
 # =======================================================================
 
