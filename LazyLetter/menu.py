@@ -43,7 +43,8 @@ def _filter_options(li, answer):
 def _search_entire(li, answer):
     """
     Attempts to match a given response's entire case within a list of values,
-    returns any successful matches.
+    returns any successful matches. An exact answer to list element match takes
+    immediate priority and returns a list with just that element.
     """
     result = []
     answer = answer.lower()
@@ -61,7 +62,8 @@ def _search_entire(li, answer):
 
 
 def _search_int(li, answer):
-    result = -1  # user options list is 1-based
+    # user options list is 1-based
+    result = -1
 
     try:
         result += int(answer)
