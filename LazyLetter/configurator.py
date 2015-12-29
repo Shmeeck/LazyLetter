@@ -78,12 +78,8 @@ class Config(object):
         if os.path.exists(filepath):
             if force:
                 os.remove(filepath)
-            else:
-                return False
 
         os.rename(temppath, filepath)
-
-        return True
 
     def _load_dict(self, indict):
         """

@@ -144,7 +144,8 @@ def teardown_save_load():
 def test_save_load():
     """
     Config should save all attributes and values as a dict into a json file
-    and then be read back into the config object.
+    and then be read back into the config object. If save(force=False) then a
+    FileExistsError exception should be raised if the save was already done.
     """
 
     config().save()
@@ -152,6 +153,8 @@ def test_save_load():
 
     assert_equals(result_config.path_letters, config().path_letters)
     assert_equals(result_config.greeting, config().greeting)
+
+    assert_raises(FileExistsError, config().save, force=False)
 
 # =======================================================================
 

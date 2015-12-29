@@ -1,35 +1,15 @@
 import os
 
 
-def join(path, filename=None):
-    if filename:
-        return os.path.join(path, filename)
-    else:
-        return path
-
-
 def delete(path, filename):
     if type(filename) == list:
-        result = False
-
         for single_name in filename:
-            filepath = join(path, single_name)
-
-            if os.path.exists(filepath) and os.path.isfile(filepath):
-                os.remove(filepath)
-
-                result = True
-
-        return result
+            delete(path, single_name)
     else:
-        filepath = join(path, filename)
+        filepath = os.path.join(path, filename)
 
         if os.path.exists(filepath) and os.path.isfile(filepath):
             os.remove(filepath)
-
-            return True
-        else:
-            return False
 
 
 def get_list(path, extension=None):
