@@ -2,13 +2,13 @@ from LazyLetter import menu
 from nose.tools import *
 
 
-def test__list_options():
+def test_list_options():
     """
     should accept a list of strings and return a specially formatted list of
     strings with inline 1-based enumeration, also accepts a prefix spacing int
     """
     test_list = ['Poopy', 'I Like Cake', 'test A Pie']
-    result = menu._list_options(test_list, 3)
+    result = menu.list_options(test_list, 3)
 
     assert_equals(result[:4], '   [')
     assert_in('[1] Poopy', result)

@@ -1,10 +1,11 @@
 import datetime
+import sys
 
 from . import utility
 from .configurator import get_config as config
 
 
-def _list_options(options, pre_spaces=4):
+def list_options(options, pre_spaces=4):
     result = ""
     for i, option in enumerate(options):
         result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option
@@ -137,6 +138,56 @@ def parse_options(options, user_in):
     return _parse_options(options, user_in)
 
 
+class Menu(object):
+
+    multiple_result_msg = "Your answer matched more than one possible option:"
+    no_result_msg = "Sorry, couldn't understand that..."
+    redo_menu_option = "None of These"
+
+    def __init__(self):
+        self.welcome = "This is a welcome message of a base Menu object."
+        self.options = ['Please', 'Subclass', 'Me']
+        self.local_map = {}
+
+    def enter(self):
+        while True:
+            utility.clear_screen()
+
+            print(self.welcome)
+            print(list_options(self.options))
+
+            result = input(config().prompt)
+            result = parse_options(self.options, result)
+            result = self.multiple_result_handler(result)
+
+            if not result:
+                continue
+            else:
+                result = navigate(self.local_map, result[0])
+                return result[0]
+
+    def multiple_result_handler(self, li):
+        while True:
+            if len(li) > 1:
+                li.append(self.redo_menu_option)
+
+                print(self.multiple_result_msg)
+                print(list_options(li))
+
+                result = input(config().prompt)
+                result = parse_options(li, result)
+
+                if not result:
+                    print(self.no_result_msg)
+                    continue
+
+                li = result
+            elif li[0] == self.redo_menu_option:
+                return []
+            else:
+                return li
+
+
 def hub():
     options = ['Generate Cover Letter', 'Settings', 'Exit']
     welcome = str("Navigate through the various menus by entering the " +
@@ -146,7 +197,7 @@ def hub():
         utility.clear_screen()
 
         print(welcome)
-        print(_list_options(options))
+        print(list_options(options))
 
         user_in = input('> ')
         print(parse_options(options, user_in))
@@ -156,3 +207,25 @@ def hub():
 
 def settings():
     options = ['']
+
+
+def exit():
+    pass
+
+
+def navigate(wonderous_map, start):
+    destination = wonderous_map.get(start)
+    heading = start
+
+    while True:
+        if not destination:
+            break
+
+        if callable(destination):
+            heading = destination()
+        else:
+            heading = destination.enter()
+
+        destination = wonderous_map.get(heading)
+
+    return heading
