@@ -24,15 +24,15 @@ def test_default_path():
 
     # --- 1 ---
     result_path = os.path.dirname(base_path)
-    assert_equals(config().default_path(None), result_path)
+    assert_equals(configurator.default_path(None), result_path)
 
     # --- 2 ---
     result_path = os.path.join(os.path.dirname(base_path), "test")
-    assert_equals(config().default_path("test"), result_path)
+    assert_equals(configurator.default_path("test"), result_path)
 
     # --- 3 ---
     result_path = os.path.join(base_path, "cheese")
-    assert_equals(config().default_path(result_path), result_path)
+    assert_equals(configurator.default_path(result_path), result_path)
 
 # =======================================================================
 
@@ -44,7 +44,7 @@ def setup_test_write_debug():
 
 
 def teardown_test_write_debug():
-    filewalker.delete(config().default_path(), 'test_debug.log')
+    filewalker.delete(configurator.default_path(), 'test_debug.log')
 
     config().debug = default_config.debug
     config().debuglog = default_config.debuglog
@@ -59,7 +59,8 @@ def test_write_debug():
         2.  a file containing something similar to the above string is debuglog
             is a string
     """
-    filepath = os.path.join(config().default_path(), 'test_debug.log')
+    filepath = os.path.join(configurator.default_path(),
+                            'test_debug.log')
 
     # --- 1 ---
     result = config().write_debug(test_write_debug.__name__,
@@ -86,14 +87,12 @@ def teardown_load_dict():
     if hasattr(config, 'shouldntexist'):
         del config().shouldntexist
 
-    config().path_configs = default_config.path_configs
-
 
 @with_setup(None, teardown_load_dict)
 def test_load_dict():
     """
     load_dict method should save the following into the Config object:
-        1.  a dict containing a key 'path_configs' should save its value into
+        1.  a dict containing a key 'path_letters' should save its value into
             the object's attribute with the matching name.
         2.  a dict containing a key that's not an attribute shouldn't save into
             the Config() object
@@ -102,10 +101,10 @@ def test_load_dict():
     """
 
     # --- 1 ---
-    test_dict = {'path_configs': os.path.abspath(configurator.__file__)}
+    test_dict = {'path_letters': os.path.abspath(configurator.__file__)}
     config()._load_dict(test_dict)
 
-    assert_equals(config().path_configs, test_dict['path_configs'])
+    assert_equals(config().path_letters, test_dict['path_letters'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
@@ -114,16 +113,13 @@ def test_load_dict():
     assert_equals(hasattr(config, 'shouldntexist'), False)
 
     # --- 3 ---
-    config().path_configs = config().default_path('config')
+    config().path_letters = configurator.default_path('cover letters')
 
     test_dict = {**test_dict, **test_dict2}
     config()._load_dict(test_dict)
 
     assert_equals(hasattr(config, 'shouldntexist'), False)
-    assert_equals(config().path_configs, test_dict['path_configs'])
-
-test_path_configs = "test_config"
-test_cfg_name = "test.cfg"
+    assert_equals(config().path_letters, test_dict['path_letters'])
 
 # =======================================================================
 
@@ -131,42 +127,31 @@ test_cfg_name = "test.cfg"
 # =========================== save_load() test ==========================
 
 def setup_save_load():
-    config().path_letters = config().default_path("testletters")
+    config().path_letters = configurator.default_path("testletters")
     config().greeting = "GLaDOS"
-    config().path_configs = config().default_path(test_path_configs)
-    config().current_config = test_cfg_name
 
 
 def teardown_save_load():
-    filewalker.delete(config().path_configs, [test_cfg_name,
-                                              test_cfg_name+'.temp',
+    filewalker.delete(config()._path_config, [config()._name_config,
+                                              config()._name_config+'.temp',
                                               ])
 
     config().path_letters = default_config.path_letters
     config().greeting = default_config.greeting
-    config().path_configs = default_config.path_configs
-    config().current_config = default_config.current_config
 
 
 @with_setup(setup_save_load, teardown_save_load)
 def test_save_load():
     """
     Config should save all attributes and values as a dict into a json file
-    and then be read back into the config object. Also, a failed load should
-    return False.
+    and then be read back into the config object.
     """
 
     config().save()
-    filepath = config().default_path(test_path_configs)
-    result_config = configurator.Config.load(filepath, test_cfg_name)
+    result_config = configurator.Config.load()
 
     assert_equals(result_config.path_letters, config().path_letters)
     assert_equals(result_config.greeting, config().greeting)
-
-    # failed load testing
-    sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    assert_raises(FileNotFoundError, configurator.Config.load, filepath,
-                  sillyname)
 
 # =======================================================================
 
@@ -177,11 +162,8 @@ def teardown():
     """
     if the config directory had to be made just for this test, remove it
     """
-    config().path_configs = test_path_configs
 
-    if not os.listdir(config().path_configs):
-        os.removedirs(config().path_configs)
-
-    config().path_configs = default_config.path_configs
+    if not os.listdir(config()._path_config):
+        os.removedirs(config()._path_config)
 
 # =======================================================================
