@@ -1,8 +1,91 @@
 import os
+import sys
 import json
 import datetime
 
 from . import filewalker
+
+
+def _load_dict(obj, indict):
+    """
+    Loads configuration settings from a dictionary object.
+    """
+    for key in indict:
+        if hasattr(obj, key):
+            setattr(obj, key, indict[key])
+        else:
+            # FIX THIS
+            obj.write_debug(_load_dict.__name__,
+                            "Cannot load invalid key: "+key+" (value: " +
+                            str(indict[key])+")")
+
+
+def save(obj, filepath, filename, force):
+    """
+    Dumps all attributes in dictionary form to a json text file named
+    with the current_config string.
+    """
+    # check to see if the directories exist
+    if not os.path.exists(filepath):
+        os.makedirs(filepath)
+
+    filepath = os.path.join(filepath, filename)
+    temppath = filepath + ".temp"
+
+    # filename.temp is used in the event a write
+    # error occurs
+    if os.path.exists(temppath):
+        os.remove(temppath)
+
+    f = open(temppath, 'w')
+    f.write(json.dumps(obj.__dict__))
+    f.close()
+
+    if os.path.exists(filepath):
+        if force:
+            os.remove(filepath)
+        else:
+            return False
+
+    os.rename(temppath, filepath)
+
+    return True
+
+
+def load(obj, filepath, filename):
+    """
+    Loads a json text file into the attributes of the instance, returns T/F
+    depending on file existence.
+    """
+    filepath = os.path.join(filepath, filename)
+
+    try:
+        f = open(filepath, 'r')
+        _load_dict(obj, json.loads(f.read()))
+        f.close()
+
+        return True
+    except FileNotFoundError as message:
+        # FIX THIS
+        obj.write_debug(load.__name__, "Attempted to load " +
+                        filename+": "+str(message))
+        return False
+
+
+def default_path(path=None):
+        """
+        Constructs a path relative to the parent of this file based on 2
+        default preferences, None or string, or a path input.
+        """
+        result = None
+
+        if type(path) == str or not path:
+            result = os.path.dirname(os.path.abspath(__file__))
+            result = os.path.dirname(result)
+            if type(path) == str:
+                result = os.path.join(result, path)
+
+        return result
 
 
 class Config(object):
@@ -18,8 +101,8 @@ class Config(object):
                  debug=False, debuglog=None,
                  ):
         # designated path to the directory containing the cover letter .txt's
-        self.path_letters = self.default_path(path_letters)
-        self.path_configs = self.default_path(path_configs)
+        self.path_letters = default_path(path_letters)
+        self.path_configs = default_path(path_configs)
 
         self.current_config = current_config
         self.greeting = greeting
@@ -28,93 +111,23 @@ class Config(object):
         self.copy = copy
         self.file_type_letters = file_type_letters
 
-    def default_path(self, path=None):
-        """
-        Constructs a path relative to the parent of this file based on 2
-        default preferences, None or string, or a path input.
-        """
-        result = None
-
-        if type(path) == str or not path:
-            result = os.path.dirname(os.path.abspath(__file__))
-            result = os.path.dirname(result)
-            if type(path) == str:
-                result = os.path.join(result, path)
-
-        return result
-
     def write_debug(self, function_name, message):
         result = "[DEBUG] " + function_name + ': ' + message
         if self.debug:
             print(result)
         if self.debuglog:
-            filepath = os.path.join(self.default_path(), self.debuglog)
+            filepath = os.path.join(default_path(), self.debuglog)
             with open(filepath, 'a') as f:
                 f.write('['+str(datetime.datetime.now())+'] ' + result)
                 f.close()
 
         return result
 
-    def load_dict(self, indict):
-        """
-        Loads configuration settings from a dictionary object.
-        """
-        for key in indict:
-            if hasattr(self, key):
-                self.__dict__[key] = indict[key]
-            else:
-                self.write_debug(self.load_dict.__name__,
-                                 "Cannot load invalid key: "+key+" (value: " +
-                                 indict[key]+")")
-
     def save(self, force=True):
-        """
-        Dumps all attributes in dictionary form to a json text file named
-        with the current_config string.
-        """
-        # check to see if the directories exist
-        if not os.path.exists(self.path_configs):
-            os.makedirs(self.path_configs)
-
-        filepath = os.path.join(self.path_configs, self.current_config)
-        temppath = filepath + ".temp"
-
-        # self.current_config.temp is used in the event a write
-        # error occurs
-        if os.path.exists(temppath):
-            os.remove(temppath)
-
-        f = open(temppath, 'w')
-        f.write(json.dumps(self.__dict__))
-        f.close()
-
-        if os.path.exists(filepath):
-            if force:
-                os.remove(filepath)
-            else:
-                return False
-
-        os.rename(temppath, filepath)
-
-        return True
+        return save(self, self.path_configs, self.current_config, force)
 
     def load(self):
-        """
-        Loads a json text file into the attributes of the instance, returns T/F
-        depending on file existence.
-        """
-        filepath = os.path.join(self.path_configs, self.current_config)
-
-        try:
-            f = open(filepath, 'r')
-            self.load_dict(json.loads(f.read()))
-            f.close()
-
-            return True
-        except FileNotFoundError as message:
-            self.write_debug(self.load.__name__, "Attempted to load " +
-                             self.current_config+": "+str(message))
-            return False
+        return load(self, self.path_configs, self.current_config)
 
     def remove_save(self):
         """
@@ -159,19 +172,40 @@ class Config(object):
             return old_filename
 
 
-class ConfigSaver(Config):
+class MetaSaver(object):
 
     """docstring for ConfigSaver"""
 
-    def __init__(self, path_configs=None, path_to_configs='config',
-                 current_config='LazyLatter.save'):
-        self.path_configs = self.default_path(path_configs)
-        self.path_to_configs = self.default_path(path_to_configs)
+    def __init__(self,
+                 path_save=None, path_configs='config',
+                 current_save='LazyLatter.save',
+                 current_config='default.cfg'
+                 ):
+        self.path_save = default_path(path_save)
+        self.path_configs = default_path(path_configs)
+        self.current_save = current_save
         self.current_config = current_config
 
+    def save(self, force=True):
+        return save(self, self.path_save, self.current_save)
 
-main_config = Config(debug=True)
+    def load(self):
+        return load(self, self.path_save, self.current_save)
+
+
+
+main_config = Config()
+saved_meta = MetaSaver()
 
 
 def get_config():
+    if not main_config:
+        print("Error: Config not loaded, was LazyLetter.py modified somehow?")
+        sys.exit(0)
+
     return main_config
+
+
+def set_config(config):
+    global main_config
+    main_config = config

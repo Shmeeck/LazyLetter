@@ -8,7 +8,7 @@ def test__list_options():
     strings with inline 1-based enumeration, also accepts a prefix spacing int
     """
     test_list = ['Poopy', 'I Like Cake', 'test A Pie']
-    result = menu._list_options(test_list, 3)
+    result = menu._list_options(test_list, pre_spaces=3)
 
     assert_equals(result[:4], '   [')
     assert_in('[1] Poopy', result)
