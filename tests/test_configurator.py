@@ -1,10 +1,14 @@
 import os
 
+from LazyLetter import filewalker
 from LazyLetter import configurator
+from LazyLetter.configurator import get_config as config
 from nose.tools import *
 
-# ==================== Config() Class Tests ====================
+default_config = configurator.Config()
 
+
+# ========================= default_path() test =========================
 
 def test_default_path():
     """
@@ -16,22 +20,37 @@ def test_default_path():
         3.  if the 'path' kwarg is an actual path, then it will return the
             same path
     """
-    test_obj = configurator.Config()
     base_path = os.path.dirname(os.path.abspath(configurator.__file__))
 
     # --- 1 ---
     result_path = os.path.dirname(base_path)
-    assert_equals(test_obj.default_path(None), result_path)
+    assert_equals(configurator.default_path(None), result_path)
 
     # --- 2 ---
     result_path = os.path.join(os.path.dirname(base_path), "test")
-    assert_equals(test_obj.default_path("test"), result_path)
+    assert_equals(configurator.default_path("test"), result_path)
 
     # --- 3 ---
     result_path = os.path.join(base_path, "cheese")
-    assert_equals(test_obj.default_path(result_path), result_path)
+    assert_equals(configurator.default_path(result_path), result_path)
+
+# =======================================================================
 
 
+# ========================== write_debug() test =========================
+
+def setup_test_write_debug():
+    config().debug = True
+
+
+def teardown_test_write_debug():
+    filewalker.delete(configurator.default_path(), 'test_debug.log')
+
+    config().debug = default_config.debug
+    config().debuglog = default_config.debuglog
+
+
+@with_setup(setup_test_write_debug, teardown_test_write_debug)
 def test_write_debug():
     """
     write_debug() method should return:
@@ -40,157 +59,114 @@ def test_write_debug():
         2.  a file containing something similar to the above string is debuglog
             is a string
     """
-    test_obj = configurator.Config(debug=True)
-    filepath = os.path.join(test_obj.default_path(), 'test_debug.log')
+    filepath = os.path.join(configurator.default_path(),
+                            'test_debug.log')
 
     # --- 1 ---
-    result = test_obj.write_debug(test_write_debug.__name__,
+    result = config().write_debug(test_write_debug.__name__,
                                   "failed because reasons")
     assert_in("test_write_debug", result)
     assert_in("failed because reasons", result)
     assert_raises(FileNotFoundError, open, filepath, 'r')
 
     # --- 2 ---
-    test_obj = configurator.Config(debug=True, debuglog="test_debug.log")
-    test_obj.write_debug(test_write_debug.__name__,
+    config().debuglog = "test_debug.log"
+    config().write_debug(test_write_debug.__name__,
                          "failed because reasons again")
 
     with open(filepath, 'r') as f:
         assert_in("failed because reasons again", f.read())
+        f.close()
+
+# =======================================================================
 
 
+# =========================== load_dict() test ==========================
+
+def teardown_load_dict():
+    if hasattr(config, 'shouldntexist'):
+        del config().shouldntexist
+
+
+@with_setup(None, teardown_load_dict)
 def test_load_dict():
     """
     load_dict method should save the following into the Config object:
-        1.  a dict containing a key 'path_save' should save its value into the
-            object's attribute with the matching name.
+        1.  a dict containing a key 'path_letters' should save its value into
+            the object's attribute with the matching name.
         2.  a dict containing a key that's not an attribute shouldn't save into
             the Config() object
         3.  both 1 and 2 combined should still work as the method should just
             omit 2's input
     """
-    test_obj = configurator.Config()
 
     # --- 1 ---
-    test_dict = {'path_save': os.path.abspath(configurator.__file__)}
-    test_obj.load_dict(test_dict)
+    test_dict = {'path_letters': os.path.abspath(configurator.__file__)}
+    config()._load_dict(test_dict)
 
-    assert_equals(test_obj.path_save, test_dict['path_save'])
+    assert_equals(config().path_letters, test_dict['path_letters'])
 
     # --- 2 ---
     test_dict2 = {'shouldntexist': "butts"}
-    test_obj.load_dict(test_dict2)
+    config()._load_dict(test_dict2)
 
-    assert_equals(test_obj.__dict__.get('shouldntexist'), None)
+    assert_equals(hasattr(config, 'shouldntexist'), False)
 
     # --- 3 ---
-    test_obj = configurator.Config()  # reset the object
+    config().path_letters = configurator.default_path('cover letters')
+
     test_dict = {**test_dict, **test_dict2}
-    test_obj.load_dict(test_dict)
+    config()._load_dict(test_dict)
 
-    assert_equals(test_obj.__dict__.get('shouldntexist'), None)
-    assert_equals(test_obj.path_save, test_dict['path_save'])
+    assert_equals(hasattr(config, 'shouldntexist'), False)
+    assert_equals(config().path_letters, test_dict['path_letters'])
 
-test_path_save = "test_config"
-test_cfg_name = "test.cfg"
+# =======================================================================
 
 
+# =========================== save_load() test ==========================
+
+def setup_save_load():
+    config().path_letters = configurator.default_path("testletters")
+    config().greeting = "GLaDOS"
+
+
+def teardown_save_load():
+    filewalker.delete(config()._path_config, [config()._name_config,
+                                              config()._name_config+'.temp',
+                                              ])
+
+    config().path_letters = default_config.path_letters
+    config().greeting = default_config.greeting
+
+
+@with_setup(setup_save_load, teardown_save_load)
 def test_save_load():
     """
-    Config should save all attributes and values into a json file and then
-    be read back into the config object. Also, a failed load should return
-    False.
+    Config should save all attributes and values as a dict into a json file
+    and then be read back into the config object. If save(force=False) then a
+    FileExistsError exception should be raised if the save was already done.
     """
-    test_obj = configurator.Config(path_letters="testletters",
-                                   greeting="GLaDOS",
-                                   path_save=test_path_save,
-                                   current_filename=test_cfg_name,
-                                   )
-    result_obj = configurator.Config(path_save=test_path_save,
-                                     current_filename=test_cfg_name,
-                                     )
 
-    test_obj.save()
-    result_obj.load()
+    config().save()
+    result_config = configurator.Config.load()
 
-    assert_equals(result_obj.path_letters, test_obj.path_letters)
-    assert_equals(result_obj.greeting, test_obj.greeting)
+    assert_equals(result_config.path_letters, config().path_letters)
+    assert_equals(result_config.greeting, config().greeting)
 
-    # failed load testing
-    sillyname = "testtestshouldntevereverexisteverneverever20198211029.cfpoop"
-    test_obj = configurator.Config(current_filename=sillyname)
-    assert_equals(test_obj.load(), False)
+    assert_raises(FileExistsError, config().save, force=False)
+
+# =======================================================================
 
 
-def test_remove_save():
-    """
-    after a Config() object is saved, remove_save() should be able to remove it
-    and return True, otherwise, False
-    """
-    test_obj = configurator.Config(path_save=test_path_save,
-                                   current_filename=test_cfg_name)
-
-    test_obj.save()
-    assert_equals(test_obj.remove_save(), True)
-    assert_equals(test_obj.remove_save(), False)
-
-
-def test_rename_current_filename():
-    """
-    rename_current_filename() should be able to change the value of
-    current_filename and alter the save file, should pass back the new name
-    """
-    test_obj = configurator.Config(path_save=test_path_save,
-                                   current_filename=test_cfg_name)
-
-    test_obj.save()
-    assert_equals(test_obj.rename_current_filename(test_cfg_name+'2'),
-                  test_cfg_name+'2')
-    assert_equals(test_obj.current_filename, test_cfg_name+'2')
-
-
-def test_change_config():
-    """
-    change_config() should switch to the given filename.cfg and return said
-    name; if the new filename does not exist, then return the old name that
-    existed prior to the function call
-    """
-    test_obj = configurator.Config(path_save=test_path_save,
-                                   current_filename=test_cfg_name+'3')
-    dest_obj = configurator.Config(path_save=test_path_save,
-                                   current_filename=test_cfg_name+'4')
-
-    # return the old name
-    test_obj.save()
-    assert_equals(test_obj.change_config(test_cfg_name+'4'), test_cfg_name+'3')
-
-    # return the new name because it's save file actually exists
-    dest_obj.save()
-    assert_equals(test_obj.change_config(test_cfg_name+'4'), test_cfg_name+'4')
-
+# ========================= cleanup directories =========================
 
 def teardown():
     """
-    clears out any files that stick around if the save_load test fails
+    if the config directory had to be made just for this test, remove it
     """
-    test_obj = configurator.Config(path_save=test_path_save)
 
-    filepath = os.path.join(test_obj.path_save, test_cfg_name)
-    temppath = filepath + '.temp'
-    logpath = os.path.join(test_obj.default_path(), 'test_debug.log')
+    if not os.listdir(config()._path_config):
+        os.removedirs(config()._path_config)
 
-    if os.path.exists(logpath):
-        os.remove(logpath)
-
-    if os.path.exists(test_obj.path_save):
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        if os.path.exists(temppath):
-            os.remove(temppath)
-        for i in range(2, 5):
-            if os.path.exists(filepath+str(i)):
-                os.remove(filepath+str(i))
-
-        # if the config directory had to be made just for this test, remove it
-        if not os.listdir(test_obj.path_save):
-            os.removedirs(test_obj.path_save)
+# =======================================================================
