@@ -144,10 +144,9 @@ class Menu(object):
     no_result_msg = "Sorry, couldn't understand that..."
     redo_menu_option = "None of These"
 
-    def __init__(self):
-        self.welcome = "This is a welcome message of a base Menu object."
-        self.options = ['Please', 'Subclass', 'Me']
-        self.local_map = {}
+    welcome = "This is a welcome message of a base Menu object."
+    options = ['Please', 'Subclass', 'Me']
+    local_map = {}
 
     def enter(self):
         while True:
@@ -164,7 +163,7 @@ class Menu(object):
                 continue
             else:
                 result = navigate(self.local_map, result[0])
-                return result[0]
+                return result
 
     def multiple_result_handler(self, li):
         while True:
@@ -188,29 +187,22 @@ class Menu(object):
                 return li
 
 
-def hub():
+class MainMenu(Menu):
     options = ['Generate Cover Letter', 'Settings', 'Exit']
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
-    while True:
-        utility.clear_screen()
-
-        print(welcome)
-        print(list_options(options))
-
-        user_in = input('> ')
-        print(parse_options(options, user_in))
-
-        input(config().continue_msg)
+    local_map = {}
 
 
-def settings():
-    options = ['']
+class Settings(Menu):
+    options = []
 
 
-def exit():
-    pass
+class Exit(Menu):
+
+    def enter(self):
+        sys.exit(0)
 
 
 def navigate(wonderous_map, start):
@@ -229,3 +221,13 @@ def navigate(wonderous_map, start):
         destination = wonderous_map.get(heading)
 
     return heading
+
+
+world_map = {
+             'Main Menu': MainMenu(),
+             'Exit': Exit(),
+             }
+
+
+def hub_navigation(start='Main Menu'):
+    navigate(world_map, start)

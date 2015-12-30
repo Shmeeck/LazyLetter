@@ -10,4 +10,4 @@ except FileNotFoundError:
     config().save(force=False)
     input(config().continue_msg)
 
-menu.hub()
+menu.hub_navigation()
