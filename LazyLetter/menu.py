@@ -175,15 +175,11 @@ class Menu(object):
                 result = navigate(self.local_map, result[0])
                 return result
 
-    def question_handler(self, li, question, _reset_list_option=False):
+    def question_handler(self, li, question):
         result = []
 
         while True:
             result = li
-            if _reset_list_option and not \
-               result[len(result)-1] == self.redo_menu_option:
-
-                result.append(self.redo_menu_option)
 
             answer = ask_input(result, question)
             result = parse_options(result, answer)
@@ -192,19 +188,19 @@ class Menu(object):
                 print(self.no_result_msg)
                 continue
             elif len(result) > 1:
+                if not result[len(result)-1] == self.redo_menu_option:
+                    result.append(self.redo_menu_option)
+
                 result = self.question_handler(result,
                                                self.multiple_result_msg,
-                                               _reset_list_option=True,
                                                )
+            elif result[0] == self.redo_menu_option:
+                print(li[len(li)-1])
 
-            if result[0] == self.redo_menu_option:
-                if _reset_list_option:
-                    return [result[0]]
+                if not li[len(li)-1] == self.redo_menu_option:
+                    continue
 
-                continue
-            else:
-                print(result[0])
-                break
+            break
 
         return result
 
