@@ -113,7 +113,7 @@ def test_load_dict():
     assert_equals(hasattr(config, 'shouldntexist'), False)
 
     # --- 3 ---
-    config().path_letters = configurator.default_path('cover letters')
+    config().path_letters = default_config.path_letters
 
     test_dict = {**test_dict, **test_dict2}
     config()._load_dict(test_dict)

@@ -28,9 +28,12 @@ class Config(object):
     _path_config = default_path('config')
     _name_config = 'LazyLetter.cfg'
 
+    continue_msg = 'Press ENTER to continue...'
+    prompt = '> '
+
     def __init__(self,
                  path_letters='cover letters', file_type_letters='.txt',
-                 greeting="To Whom It May Concern", copy=False,
+                 greeting="To Whom It May Concern", copy=None,
                  debug=False, debuglog=None,
                  ):
         # designated path to the directory containing the cover letter .txt's
@@ -108,7 +111,7 @@ class Config(object):
 
         return result
 
-main_config = Config(debug=True)
+main_config = Config()
 
 
 def get_config():
