@@ -164,16 +164,12 @@ class Menu(object):
     local_map = {}
 
     def enter(self):
-        while True:
-            utility.clear_screen()
+        utility.clear_screen()
 
-            result = self.question_handler(self.options, self.welcome)
+        result = self.question_handler(self.options, self.welcome)
+        result = navigate(self.local_map, result)
 
-            if not result:
-                continue
-            else:
-                result = navigate(self.local_map, result)
-                return result
+        return result
 
     def question_handler(self, li, question):
         """
