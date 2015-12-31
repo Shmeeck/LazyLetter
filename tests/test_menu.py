@@ -15,7 +15,7 @@ def test_list_options():
     assert_in('[3] test A Pie', result)
 
 
-def test__filter_options():
+def test_filter_each_letter():
     """
     should accept a list of strings and a letter and return a list consisting
     of only the items that match the letter, the matching option also omits 1
@@ -27,20 +27,20 @@ def test__filter_options():
     test_list = ['i like caake', 'Test Bakery',
                  'who put this here', 'WAFFLES',
                  '']
-    result = menu._filter_options(test_list, 'a')
+    result = menu.filter_each_letter(test_list, 'a')
 
     assert_equals('i like caake', result[0])
     assert_equals('Test Bakery', result[1])
     assert_equals('WAFFLES', result[2])
     assert_equals(len(result), 3)
 
-    result = menu._filter_options(test_list, 'WAFF')
+    result = menu.filter_each_letter(test_list, 'WAFF')
     assert_equals('WAFFLES', result[0])
 
-    result = menu._filter_options(test_list, 'who put this here')
+    result = menu.filter_each_letter(test_list, 'who put this here')
     assert_equals('who put this here', result[0])
 
-    result = menu._filter_options(test_list, 'el')
+    result = menu.filter_each_letter(test_list, 'el')
     assert_equals([], result)
 
 

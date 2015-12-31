@@ -16,10 +16,10 @@ def list_options(options, pre_spaces=4):
     return result
 
 
-def _filter_options(li, answer):
+def filter_each_letter(li, answer):
     """
-    Takes a list of lower-cased options and a letter and returns back a list
-    of options that only contain said letter.
+    Takes a list of lower-cased options and a string and returns back a list
+    of options that only contain all letters of the string with order.
     """
     result = []
     answer = answer.replace(' ', '')
@@ -41,7 +41,7 @@ def _filter_options(li, answer):
     return result
 
 
-def _search_entire(li, answer):
+def filter_entire_string(li, answer):
     """
     Attempts to match a given response's entire case within a list of values,
     returns any successful matches. An exact answer to list element match takes
@@ -95,13 +95,13 @@ def _parse_options(li, answer):
 
     # search by each letter in the answer, order of letters matter
     # (by order I mean, ingsttse will not return settings)
-    result = _filter_options(li, answer)
+    result = filter_each_letter(li, answer)
     potential_result = []
 
     if len(result) > 1:
         # last attempt to narrow down the list by trying to match the
         # entire answer within the each list element
-        potential_result = _search_entire(result, answer)
+        potential_result = filter_entire_string(result, answer)
 
         # only return if successful matches were found
         if len(potential_result) > 0:
@@ -172,7 +172,7 @@ class Menu(object):
             if not result:
                 continue
             else:
-                result = navigate(self.local_map, result[0])
+                result = navigate(self.local_map, result)
                 return result
 
     def question_handler(self, li, question):
@@ -198,7 +198,7 @@ class Menu(object):
             answer = ask_input(result, question)
             result = parse_options(result, answer)
 
-            if not result:
+            if not result or not answer:
                 print(self.no_result_msg)
                 continue
             elif len(result) > 1:
@@ -213,14 +213,14 @@ class Menu(object):
                                                self.multiple_result_msg,
                                                )
 
-            if result[0] == self.redo_menu_option:
+            if result == self.redo_menu_option:
                 # we gotta go back to the start of the stack...
                 if not li[len(li)-1] == self.redo_menu_option:
                     continue
 
             break
 
-        return result
+        return result[0]
 
 
 class MainMenu(Menu):
