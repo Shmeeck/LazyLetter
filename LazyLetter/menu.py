@@ -176,6 +176,20 @@ class Menu(object):
                 return result
 
     def question_handler(self, li, question):
+        """
+        Accepts a list of options and a question to display to the user, an
+        enumerated version of the list is always displayed after the question,
+        the function will continuously filter the user's answer and the list
+        until the following is satisfied:
+            1. The result is not blank
+            2. There is only a single result
+
+        If there are multiple options in the result after filtering, a
+        recursive call is made with the remaining options only if the
+        options were narrowed since the last recurse, otherwise, continue.
+        An option to leave the narrowed listings is made available in this
+        stage of filtering.
+        """
         result = []
 
         while True:
@@ -189,8 +203,10 @@ class Menu(object):
                 continue
             elif len(result) > 1:
                 # add the ability to display the whole list again
-                if not result[len(result)-1] == self.redo_menu_option:
+                if not li[len(li)-1] == self.redo_menu_option:
                     result.append(self.redo_menu_option)
+                elif result == li[:len(li)-1]:
+                    continue
 
                 # let's go again with only the remaining options
                 result = self.question_handler(result,
