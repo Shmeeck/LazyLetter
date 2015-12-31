@@ -29,6 +29,7 @@ class Config(object):
     _name_config = 'LazyLetter.cfg'
 
     continue_msg = 'Press ENTER to continue...'
+    prompt = '> '
 
     def __init__(self,
                  path_letters='cover letters', file_type_letters='.txt',
