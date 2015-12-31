@@ -158,6 +158,7 @@ class Menu(object):
     multiple_result_msg = "Your answer matched more than one possible option:"
     no_result_msg = "Sorry, couldn't understand that..."
     redo_menu_option = "None of These"
+    back_option = "Back to {}"
 
     welcome = "This is a welcome message of a base Menu object."
     options = ['Please', 'Subclass', 'Me']
@@ -165,8 +166,19 @@ class Menu(object):
 
     def enter(self):
         utility.clear_screen()
+        go_back = ''
+
+        if self.back_option:
+            go_back = self.back_option.format(self.origin)
+            self.options.append(go_back)
 
         result = self.question_handler(self.options, self.welcome)
+
+        if self.back_option:
+            self.options.pop()
+        if result == go_back:
+            return self.origin
+
         result = navigate(self.local_map, result)
 
         return result
@@ -221,19 +233,31 @@ class Menu(object):
 
 class MainMenu(Menu):
     options = ['Generate Cover Letter', 'Settings', 'Exit', 'Test']
+    back_option = None
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
 
-    def test(self):
-        print("HOORAY!")
-        print(self.options)
-
-    local_map = {'Test': test}
-
 
 class Settings(Menu):
-    options = []
+    options = ['Cover Letter Directory',
+               'Copy to Clipboard by Default',
+               'Debug Mode',
+               ]
+
+    def enter(self):
+        self.welcome = self.get_current_settings() + \
+            str("Select which setting you would like to modify:")
+
+        super().enter()
+
+    def get_current_settings(self):
+        result = 'Cover Letter Directory: ' + str(config().path_letters) + \
+                 '\n' + 'Copy to Clipboard by Default: ' + \
+                 str(config().copy) + '\n' + 'Debug Mode: ' + \
+                 str(config().debug) + '\n\n'
+
+        return result
 
 
 class Exit(Menu):
@@ -245,17 +269,17 @@ class Exit(Menu):
 def navigate(wonderous_map, start):
     destination = wonderous_map.get(start)
     heading = start
+    origin = start
 
     while True:
         if not destination:
             break
 
-        if callable(destination):
-            heading = destination()
-        else:
-            heading = destination.enter()
+        heading = destination.enter()
 
         destination = wonderous_map.get(heading)
+        destination.origin = origin
+        origin = heading
 
     return heading
 
@@ -263,6 +287,7 @@ def navigate(wonderous_map, start):
 world_map = {
              'Main Menu': MainMenu(),
              'Exit': Exit(),
+             'Settings': Settings(),
              }
 
 
