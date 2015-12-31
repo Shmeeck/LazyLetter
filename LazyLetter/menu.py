@@ -110,8 +110,9 @@ def _parse_options(li, answer):
     return result
 
 
-def ask_input(question):
+def ask_input(li, question):
     print(question)
+    print(list_options(li))
     result = input(config().prompt)
 
     return result
@@ -146,6 +147,7 @@ def parse_options(options, user_in):
 
 
 class Menu(object):
+
     """
     The base object that acts as a node for the user to navigate between
     application features. local_map can be specified to transfer the user
@@ -165,8 +167,7 @@ class Menu(object):
         while True:
             utility.clear_screen()
 
-            result = self._prompt_input(self.options)
-            result = self.multiple_result_handler(result)
+            result = self.question_handler(self.options, self.welcome)
 
             if not result:
                 continue
@@ -177,39 +178,35 @@ class Menu(object):
     def question_handler(self, li, question, _reset_list_option=False):
         result = []
 
-        # keep asking over and over again until at least 1 item returns
         while True:
             result = li
+            if _reset_list_option and not \
+               result[len(result)-1] == self.redo_menu_option:
 
-            # if we are trying to narrow down the list, but the user wants to
-            # see everything again, then this option allows that escape
-            if _reset_list_option:
                 result.append(self.redo_menu_option)
 
-            answer = ask_input(question)
+            answer = ask_input(result, question)
             result = parse_options(result, answer)
 
             if not result:
                 print(self.no_result_msg)
+                continue
             elif len(result) > 1:
                 result = self.question_handler(result,
                                                self.multiple_result_msg,
-                                               _reset_list_option=True,)
+                                               _reset_list_option=True,
+                                               )
+
+            if result[0] == self.redo_menu_option:
+                if _reset_list_option:
+                    return [result[0]]
+
+                continue
             else:
+                print(result[0])
                 break
 
-        # we have at least one guaranteed result, now we have to make sure
-        # we're at only 1 result.
-
-        if result[0] == self.redo_menu_option:
-            # once reset_list_option is False, we know we're at the end of the
-            # stack
-            if _reset_list_option:
-                return result[0]
-            else:
-                result = self.question_handler(li, question)
-
-        return li
+        return result
 
 
 class MainMenu(Menu):
