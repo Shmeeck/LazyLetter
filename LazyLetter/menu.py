@@ -188,15 +188,17 @@ class Menu(object):
                 print(self.no_result_msg)
                 continue
             elif len(result) > 1:
+                # add the ability to display the whole list again
                 if not result[len(result)-1] == self.redo_menu_option:
                     result.append(self.redo_menu_option)
 
+                # let's go again with only the remaining options
                 result = self.question_handler(result,
                                                self.multiple_result_msg,
                                                )
-            elif result[0] == self.redo_menu_option:
-                print(li[len(li)-1])
 
+            if result[0] == self.redo_menu_option:
+                # we gotta go back to the start of the stack...
                 if not li[len(li)-1] == self.redo_menu_option:
                     continue
 
