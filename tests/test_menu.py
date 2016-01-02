@@ -44,7 +44,7 @@ def test_filter_each_letter():
     assert_equals([], result)
 
 
-def test__search_entire():
+def test_filter_entire_string():
     """
     when given a list and an answer as a string, it should return:
         1.  a list with only matches of the full answer
@@ -57,18 +57,17 @@ def test__search_entire():
                  'Stripes stripes stripes', 'Cake is greater than pie',
                  'I like pie', 'LIKE']
     # --- 1 ---
-    assert_equals(menu._search_entire(test_list, 'sTrIpEs'), [test_list[0],
-                                                              test_list[1],
-                                                              test_list[2],
-                                                              ])
-    assert_equals(menu._search_entire(test_list, 'sTRiPES stripES'),
+    assert_equals(menu.filter_entire_string(test_list, 'sTrIpEs'),
+                  [test_list[0], test_list[1], test_list[2],
+                   ])
+    assert_equals(menu.filter_entire_string(test_list, 'sTRiPES stripES'),
                   [test_list[2]])
 
     # --- 2 ---
-    assert_equals(menu._search_entire(test_list, 'Pie is greater'), [])
+    assert_equals(menu.filter_entire_string(test_list, 'Pie is greater'), [])
 
     # --- 3 ---
-    assert_equals(menu._search_entire(test_list, 'like'), [test_list[5]])
+    assert_equals(menu.filter_entire_string(test_list, 'like'), [test_list[5]])
 
 
 def test__search_int():

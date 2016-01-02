@@ -110,6 +110,62 @@ def _parse_options(li, answer):
     return result
 
 
+def question_handler(li, question,
+                     option_redo,
+                     msg_noresult,
+                     msg_multiple=None,
+                     ):
+    """
+    Accepts a list of options and a question to display to the user, an
+    enumerated version of the list is always displayed after the question,
+    the function will continuously filter the user's answer and the list
+    until the following is satisfied:
+        1. The result is not blank
+        2. There is only a single result
+
+    If there are multiple options in the result after filtering, a
+    recursive call is made with the remaining options only if the
+    options were narrowed since the last recurse, otherwise, continue.
+    An option to leave the narrowed listings is made available in this
+    stage of filtering.
+    """
+    result = []
+
+    while True:
+        result = li
+
+        answer = ask_input(result, question)
+        result = parse_options(result, answer)
+
+        if not result or not answer:
+            print(msg_noresult)
+            continue
+        elif len(result) > 1:
+            # add the ability to display the whole list again
+            if not li[len(li)-1] == option_redo:
+                result.append(option_redo)
+            elif result == li[:len(li)-1]:
+                continue
+
+            # let's go again with only the remaining options
+            if not msg_multiple:
+                msg_multiple = question
+
+            result = question_handler(result, msg_multiple,
+                                      option_redo,
+                                      msg_noresult,
+                                      )
+
+        if result == option_redo:
+            # we gotta go back to the start of the stack...
+            if not li[len(li)-1] == option_redo:
+                continue
+
+        break
+
+    return result[0]
+
+
 def ask_input(li, question):
     print(question)
     print(list_options(li))
@@ -155,10 +211,10 @@ class Menu(object):
     itself.
     """
 
-    multiple_result_msg = "Your answer matched more than one possible option:"
-    no_result_msg = "Sorry, couldn't understand that..."
-    redo_menu_option = "None of These"
-    back_option = "Back to {}"
+    msg_multiple = "Your answer matched more than one possible option:"
+    msg_noresult = "Sorry, couldn't understand that..."
+    option_redo = "None of These"
+    option_back = "Back to {}"
 
     welcome = "This is a welcome message of a base Menu object."
     options = ['Please', 'Subclass', 'Me']
@@ -168,13 +224,16 @@ class Menu(object):
         utility.clear_screen()
         go_back = ''
 
-        if self.back_option:
-            go_back = self.back_option.format(self.origin)
+        if self.option_back:
+            go_back = self.option_back.format(self.origin)
             self.options.append(go_back)
 
-        result = self.question_handler(self.options, self.welcome)
+        result = question_handler(self.options, self.welcome,
+                                  self.option_redo, self.msg_noresult,
+                                  self.msg_multiple,
+                                  )
 
-        if self.back_option:
+        if self.option_back:
             self.options.pop()
         if result == go_back:
             return self.origin
@@ -183,57 +242,10 @@ class Menu(object):
 
         return result
 
-    def question_handler(self, li, question):
-        """
-        Accepts a list of options and a question to display to the user, an
-        enumerated version of the list is always displayed after the question,
-        the function will continuously filter the user's answer and the list
-        until the following is satisfied:
-            1. The result is not blank
-            2. There is only a single result
-
-        If there are multiple options in the result after filtering, a
-        recursive call is made with the remaining options only if the
-        options were narrowed since the last recurse, otherwise, continue.
-        An option to leave the narrowed listings is made available in this
-        stage of filtering.
-        """
-        result = []
-
-        while True:
-            result = li
-
-            answer = ask_input(result, question)
-            result = parse_options(result, answer)
-
-            if not result or not answer:
-                print(self.no_result_msg)
-                continue
-            elif len(result) > 1:
-                # add the ability to display the whole list again
-                if not li[len(li)-1] == self.redo_menu_option:
-                    result.append(self.redo_menu_option)
-                elif result == li[:len(li)-1]:
-                    continue
-
-                # let's go again with only the remaining options
-                result = self.question_handler(result,
-                                               self.multiple_result_msg,
-                                               )
-
-            if result == self.redo_menu_option:
-                # we gotta go back to the start of the stack...
-                if not li[len(li)-1] == self.redo_menu_option:
-                    continue
-
-            break
-
-        return result[0]
-
 
 class MainMenu(Menu):
     options = ['Generate Cover Letter', 'Settings', 'Exit', 'Test']
-    back_option = None
+    option_back = None
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
@@ -249,7 +261,7 @@ class Settings(Menu):
         self.welcome = self.get_current_settings() + \
             str("Select which setting you would like to modify:")
 
-        super().enter()
+        return super().enter()
 
     def get_current_settings(self):
         result = 'Cover Letter Directory: ' + str(config().path_letters) + \
