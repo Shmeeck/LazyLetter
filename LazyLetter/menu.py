@@ -19,11 +19,16 @@ class Menu(object):
     option_redo = "None of These"
     option_back = "Back to {}"
 
-    welcome = "This is a welcome message of a base Menu object."
+    welcome = "This is a welcome message of a base Menu object:"
     options = ['Please', 'Subclass', 'Me']
+    name = 'Base Menu'
     local_map = {}
 
     def enter(self):
+        result = self.get_answer()
+        return navigate(self.local_map, result, self.name)
+
+    def get_answer(self):
         utility.clear_screen()
         go_back = ''
 
@@ -41,24 +46,65 @@ class Menu(object):
         if result == go_back:
             return self.origin
 
-        result = navigate(self.local_map, result)
-
         return result
 
 
+class MenuFunction(Menu):
+
+    """
+    A base object for performing a specific action within a Menu object.
+    """
+
+    welcome = "This is a welcome message of a base MenuFunction object:"
+    name = 'Base Menu Function'
+    options = []
+
+    def enter(self):
+        result = self.get_answer()
+        return self.do_action(result)
+
+    def do_action(self, answer):
+        print("Base MenuFuncton did nothing on " + answer)
+
+        return self.origin
+
+
 class MainMenu(Menu):
-    options = ['Generate Cover Letter', 'Settings', 'Exit', 'Test']
-    option_back = None
     welcome = str("Navigate through the various menus by entering the " +
                   "option, or option number, below:"
                   )
+    name = 'Main Menu'
+    options = ['Generate Cover Letter', 'Settings', 'Exit']
+    option_back = None
+
+
+class ToggleDebug(MenuFunction):
+
+    welcome = "Set debug mode to " + str(not config().debug) + "?"
+    name = 'Debug Mode'
+    options = ['Yes', 'No']
+
+    def do_action(self, answer):
+        if answer == 'Yes':
+            result = not config().debug
+            config().debug = result
+
+            if result:
+                config().debuglog = 'debug.log'
+            else:
+                config().debuglog = None
+
+        return self.origin
 
 
 class Settings(Menu):
+    name = 'Settings'
     options = ['Cover Letter Directory',
                'Copy to Clipboard by Default',
                'Debug Mode',
                ]
+    local_map = {'Debug Mode': ToggleDebug(),
+                 }
 
     def enter(self):
         self.welcome = self.get_current_settings() + \
@@ -76,15 +122,30 @@ class Settings(Menu):
 
 
 class Exit(Menu):
+    name = 'Exit'
 
     def enter(self):
         sys.exit(0)
 
 
-def navigate(wonderous_map, start):
+def navigate(wonderous_map, start, origin=None):
+    """
+    Accepts a dictionary which maps strings to Menu or MenuFunction objects
+    and one string that equals a dictionary key. The string goes through the
+    dictionary of objects and enter() gets called on the result. Within each
+    Menu object is a local_map and calls this same function for that map as
+    well.
+
+    Loops until a Menu/MenuFunction returns a non-matching key for the active
+    map and sends said key up to the previous active map or exits the function
+    if we're already at the world_map.
+    """
     destination = wonderous_map.get(start)
     heading = start
-    origin = start
+    if not origin:
+        origin = start
+    else:
+        destination.origin = origin
 
     while True:
         if not destination:
@@ -93,12 +154,15 @@ def navigate(wonderous_map, start):
         heading = destination.enter()
 
         destination = wonderous_map.get(heading)
-        destination.origin = origin
-        origin = heading
+
+        if destination:
+            destination.origin = origin
+            origin = heading
 
     return heading
 
 
+# deals with the main overworld menu options
 world_map = {
              'Main Menu': MainMenu(),
              'Exit': Exit(),
@@ -107,4 +171,7 @@ world_map = {
 
 
 def hub_navigation(start='Main Menu'):
+    """
+    This function initiates the entire shabangbang!
+    """
     navigate(world_map, start)

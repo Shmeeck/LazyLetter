@@ -17,7 +17,10 @@ def list_options(options, pre_spaces=4):
 
 def ask_input(li, question):
     print(question)
-    print(list_options(li))
+
+    if li:
+        print(list_options(li))
+
     result = input(config().prompt)
 
     return result
