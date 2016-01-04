@@ -1,7 +1,7 @@
-from LazyLetter import menu
-from LazyLetter import utility
-from LazyLetter import configurator
-from LazyLetter.configurator import get_config as config
+from CoverLetterExpress import menu
+from CoverLetterExpress import utility
+from CoverLetterExpress import configurator
+from CoverLetterExpress.configurator import get_config as config
 
 continue_msg = False
 utility.clear_screen()
