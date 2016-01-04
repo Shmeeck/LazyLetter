@@ -47,9 +47,12 @@ class Menu(object):
     name = 'Base Menu'
     local_map = WonderousMap()
 
+    def __init__(self):
+        self.update_welcome()
+
     def enter(self):
         while True:
-            result = self.get_answer()
+            result = self.get_answer(self.local_map.keys)
             result = navigate(self.local_map, result, self.name)
 
             if result == self.name:
@@ -57,25 +60,29 @@ class Menu(object):
             else:
                 return result
 
-    def get_answer(self):
+    def get_answer(self, li):
         utility.clear_screen()
         go_back = ''
 
         if self.option_back:
             go_back = self.option_back.format(self.origin)
-            self.local_map.keys.append(go_back)
+            li.append(go_back)
 
-        result = question.handler(self.local_map.keys, self.welcome,
+        self.update_welcome()
+        result = question.handler(li, self.welcome,
                                   self.option_redo, self.msg_noresult,
                                   self.msg_multiple,
                                   )
 
         if self.option_back:
-            self.local_map.keys.pop()
+            li.pop()
         if result == go_back:
             return self.origin
 
         return result
+
+    def update_welcome(self):
+        pass
 
 
 class MenuFunction(Menu):
@@ -89,7 +96,7 @@ class MenuFunction(Menu):
     options = []
 
     def enter(self):
-        result = self.get_answer()
+        result = self.get_answer(self.options)
         return self.do_action(result)
 
     def do_action(self, answer):
@@ -100,7 +107,6 @@ class MenuFunction(Menu):
 
 class ToggleDebug(MenuFunction):
 
-    welcome = "Set debug mode to " + str(not config().debug) + "?"
     name = 'Debug Mode'
     options = ['Yes', 'No']
 
@@ -114,19 +120,18 @@ class ToggleDebug(MenuFunction):
             else:
                 config().debuglog = None
 
+            config().save()
+
         return self.origin
+
+    def update_welcome(self):
+        self.welcome = "Set debug mode to " + str(not config().debug) + "?"
 
 
 class Settings(Menu):
     name = 'Settings'
     local_map = WonderousMap([ToggleDebug(),
                               ])
-
-    def enter(self):
-        self.welcome = self.get_current_settings() + \
-            str("Select which setting you would like to modify:")
-
-        return super().enter()
 
     def get_current_settings(self):
         result = 'Cover Letter Directory: ' + str(config().path_letters) + \
@@ -135,6 +140,10 @@ class Settings(Menu):
                  str(config().debug) + '\n\n'
 
         return result
+
+    def update_welcome(self):
+        self.welcome = self.get_current_settings() + \
+            str("Select which setting you would like to modify:")
 
 
 class Exit(Menu):

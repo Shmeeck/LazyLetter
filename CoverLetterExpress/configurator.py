@@ -52,7 +52,7 @@ class Config(object):
         if self.debuglog:
             filepath = os.path.join(default_path(), self.debuglog)
             with open(filepath, 'a') as f:
-                f.write('['+str(datetime.datetime.now())+'] ' + result)
+                f.write('['+str(datetime.datetime.now())+'] ' + result + '\n')
                 f.close()
 
         return result
