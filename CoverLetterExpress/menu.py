@@ -5,6 +5,29 @@ from . import question
 from .configurator import get_config as config
 
 
+class WonderousMap(object):
+
+    """
+    Manages all meta-data and details regarding which key leads to which Menu
+    or MenuFunction object.
+    """
+
+    def __init__(self, details=None):
+        if details:
+            self.load(details)
+
+    def load(self, details):
+        self.themap = {}
+        self.keys = [None] * len(details)
+
+        for i, dest in enumerate(details):
+            self.keys[i] = dest.name
+            self.themap[dest.name] = details[i]
+
+    def get(self, key, on_fail=None):
+        return self.themap.get(key, on_fail)
+
+
 class Menu(object):
 
     """
@@ -19,14 +42,20 @@ class Menu(object):
     option_redo = "None of These"
     option_back = "Back to {}"
 
+    origin = ''
     welcome = "This is a welcome message of a base Menu object:"
-    options = ['Please', 'Subclass', 'Me']
     name = 'Base Menu'
-    local_map = {}
+    local_map = WonderousMap()
 
     def enter(self):
-        result = self.get_answer()
-        return navigate(self.local_map, result, self.name)
+        while True:
+            result = self.get_answer()
+            result = navigate(self.local_map, result, self.name)
+
+            if result == self.name:
+                continue
+            else:
+                return result
 
     def get_answer(self):
         utility.clear_screen()
@@ -34,15 +63,15 @@ class Menu(object):
 
         if self.option_back:
             go_back = self.option_back.format(self.origin)
-            self.options.append(go_back)
+            self.local_map.keys.append(go_back)
 
-        result = question.handler(self.options, self.welcome,
+        result = question.handler(self.local_map.keys, self.welcome,
                                   self.option_redo, self.msg_noresult,
                                   self.msg_multiple,
                                   )
 
         if self.option_back:
-            self.options.pop()
+            self.local_map.keys.pop()
         if result == go_back:
             return self.origin
 
@@ -69,15 +98,6 @@ class MenuFunction(Menu):
         return self.origin
 
 
-class MainMenu(Menu):
-    welcome = str("Navigate through the various menus by entering the " +
-                  "option, or option number, below:"
-                  )
-    name = 'Main Menu'
-    options = ['Generate Cover Letter', 'Settings', 'Exit']
-    option_back = None
-
-
 class ToggleDebug(MenuFunction):
 
     welcome = "Set debug mode to " + str(not config().debug) + "?"
@@ -99,12 +119,8 @@ class ToggleDebug(MenuFunction):
 
 class Settings(Menu):
     name = 'Settings'
-    options = ['Cover Letter Directory',
-               'Copy to Clipboard by Default',
-               'Debug Mode',
-               ]
-    local_map = {'Debug Mode': ToggleDebug(),
-                 }
+    local_map = WonderousMap([ToggleDebug(),
+                              ])
 
     def enter(self):
         self.welcome = self.get_current_settings() + \
@@ -128,7 +144,20 @@ class Exit(Menu):
         sys.exit(0)
 
 
-def navigate(wonderous_map, start, origin=None):
+class MainMenu(Menu):
+    welcome = str("Navigate through the various menus by entering the " +
+                  "option, or option number, below:"
+                  )
+    name = 'Main Menu'
+    option_back = None
+
+    def __init__(self):
+        self.local_map = WonderousMap([Settings(),
+                                       Exit(),
+                                       ])
+
+
+def navigate(wonderous_map, start, origin):
     """
     Accepts a dictionary which maps strings to Menu or MenuFunction objects
     and one string that equals a dictionary key. The string goes through the
@@ -142,9 +171,8 @@ def navigate(wonderous_map, start, origin=None):
     """
     destination = wonderous_map.get(start)
     heading = start
-    if not origin:
-        origin = start
-    else:
+
+    if destination:
         destination.origin = origin
 
     while True:
@@ -162,16 +190,8 @@ def navigate(wonderous_map, start, origin=None):
     return heading
 
 
-# deals with the main overworld menu options
-world_map = {
-             'Main Menu': MainMenu(),
-             'Exit': Exit(),
-             'Settings': Settings(),
-             }
-
-
-def hub_navigation(start='Main Menu'):
+def hub_navigation():
     """
     This function initiates the entire shabangbang!
     """
-    navigate(world_map, start)
+    MainMenu().enter()
