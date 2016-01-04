@@ -2,28 +2,7 @@ import datetime
 
 from . import utility
 from .configurator import get_config as config
-
-
-def list_options(options, pre_spaces=4):
-    result = ""
-    for i, option in enumerate(options):
-        result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option
-
-        if not i == len(options)-1:
-            result += '\n'
-
-    return result
-
-
-def ask_input(li, question):
-    print(question)
-
-    if li:
-        print(list_options(li))
-
-    result = input(config().prompt)
-
-    return result
+from .input import load_in
 
 
 def debug_timer(func):
@@ -101,6 +80,12 @@ def filter_entire_string(li, answer):
 
 
 def filter_index(li, answer):
+    """
+    Converts an string with an int into an int and checks with the bounds of
+    the given lists.
+
+    Returns None on fail.
+    """
     # user options list is 1-based
     result = -1
 
@@ -117,9 +102,6 @@ def filter_index(li, answer):
 
 def filter_all(li, answer):
     """
-    WIP - bug if options are akin to 'Exit' and 'Save and Exit' will return
-          -2 if 'Exit' is passed.
-
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
 
@@ -172,7 +154,7 @@ def handler(li, question,
     while True:
         result = li
 
-        answer = ask_input(result, question)
+        answer = load_in().get(result, question)
         result = filter_all_timed(result, answer)
 
         if not result or not answer:
