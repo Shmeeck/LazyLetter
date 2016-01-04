@@ -1,8 +1,8 @@
 import os
 
-from LazyLetter import filewalker
-from LazyLetter import configurator
-from LazyLetter.configurator import get_config as config
+from CoverLetterExpress import filewalker
+from CoverLetterExpress import configurator
+from CoverLetterExpress.configurator import get_config as config
 from nose.tools import *
 
 default_config = configurator.Config()

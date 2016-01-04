@@ -6,6 +6,10 @@ from .input import load_in
 
 
 def debug_timer(func):
+    """
+    Decorator for any function that needs to be timed, reports it's findings
+    to the Config().write_debug() method.
+    """
     def inner(*args, **kwargs):
         if config().debug:
             start_time = datetime.datetime.now()
@@ -26,11 +30,6 @@ def debug_timer(func):
         return result
 
     return inner
-
-
-@debug_timer
-def filter_all_timed(options, user_in):
-    return filter_all(options, user_in)
 
 
 def filter_each_letter(li, answer):
@@ -100,6 +99,7 @@ def filter_index(li, answer):
         return []
 
 
+@debug_timer
 def filter_all(li, answer):
     """
     Takes in a list of options and a user response which can be either an
@@ -155,7 +155,7 @@ def handler(li, question,
         result = li
 
         answer = load_in().get(result, question)
-        result = filter_all_timed(result, answer)
+        result = filter_all(result, answer)
 
         if not result or not answer:
             print(msg_noresult)

@@ -1,2 +1,3 @@
-from LazyLetter import menu
+from CoverLetterExpress import menu
 from nose.tools import *
+from CoverLetterExpress.input import load_in

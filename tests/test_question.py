@@ -1,4 +1,5 @@
-from LazyLetter import question
+from CoverLetterExpress import question
+from CoverLetterExpress import utility
 from nose.tools import *
 
 
@@ -8,7 +9,7 @@ def test_list_options():
     strings with inline 1-based enumeration, also accepts a prefix spacing int
     """
     test_list = ['Poopy', 'I Like Cake', 'test A Pie']
-    result = question.list_options(test_list, 3)
+    result = utility.list_options(test_list, 3)
 
     assert_equals(result[:4], '   [')
     assert_in('[1] Poopy', result)
@@ -94,7 +95,7 @@ def test_filter_index():
     assert_equals(question.filter_index(test_list, 1029392), [])
 
 
-def test_filter_all_timed():
+def test_filter_all():
     """
     when given a list of options and an answer (either an int or string), this
     should return:
@@ -114,22 +115,22 @@ def test_filter_all_timed():
                  'Save and Exit']
 
     # --- 1 ---
-    assert_equals(question.filter_all_timed(test_list, 'gENe'), [test_list[0]])
-    assert_equals(question.filter_all_timed(test_list, '2'), [test_list[1]])
+    assert_equals(question.filter_all(test_list, 'gENe'), [test_list[0]])
+    assert_equals(question.filter_all(test_list, '2'), [test_list[1]])
 
     # --- 2 ---
-    assert_equals(question.filter_all_timed(test_list, 'setq'), [])
-    assert_equals(question.filter_all_timed(test_list, '6'), [])
+    assert_equals(question.filter_all(test_list, 'setq'), [])
+    assert_equals(question.filter_all(test_list, '6'), [])
 
     # --- 3 ---
-    assert_equals(question.filter_all_timed(test_list, 'I'), [test_list[1],
+    assert_equals(question.filter_all(test_list, 'I'), [test_list[1],
                                                               test_list[2],
                                                               test_list[3],
                                                               test_list[4]
                                                               ])
 
     # --- 4 ---
-    assert_equals(question.filter_all_timed(test_list, 'EAT'), [test_list[3]])
+    assert_equals(question.filter_all(test_list, 'EAT'), [test_list[3]])
 
     # --- 5 ---
-    assert_equals(question.filter_all_timed(test_list, 'exit'), [test_list[2]])
+    assert_equals(question.filter_all(test_list, 'exit'), [test_list[2]])
