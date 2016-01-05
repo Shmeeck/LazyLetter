@@ -110,46 +110,56 @@ class MenuFunction(Menu):
         return self.origin
 
 
+class MenuToggleConfigBoolean(MenuFunction):
+
+    name = 'Base boolen toggle MenuFunction'
+    options = ['Yes', 'No']
+    option_back = False
+    item_attr = None
+
+    def do_action(self, answer):
+        if answer == 'Yes' and config() is not None:
+            toggle = not getattr(config(), self.item_attr)
+            setattr(config(), self.item_attr, toggle)
+
+            if hasattr(config(), 'save'):
+                config().save()
+
+        return self.origin
+
+    def update_welcome(self):
+        if self.item_attr:
+            self.welcome = "Set " + self.name.lower() + " to " + \
+                str(not getattr(config(), self.item_attr)) + '?'
+
+
 # ============================================================================
 # --------------------------------- Settings ---------------------------------
-class ToggleCopy(MenuFunction):
+
+class ToggleCopy(MenuToggleConfigBoolean):
 
     name = 'Copy to Clipboard by Default'
     options = ['Yes', 'No']
-
-    def do_action(self, answer):
-        if answer == 'Yes':
-            config().copy = not config().copy
-            config().save()
-
-        return self.origin
-
-    def update_welcome(self):
-        self.welcome = "Set copy by default to " + str(not config().copy) + \
-            '?'
+    item_attr = 'copy'
 
 
-class ToggleDebug(MenuFunction):
+class ToggleDebug(MenuToggleConfigBoolean):
 
     name = 'Debug Mode'
     options = ['Yes', 'No']
+    item_attr = 'debug'
 
     def do_action(self, answer):
-        if answer == 'Yes':
-            result = not config().debug
-            config().debug = result
+        debuglog = None
 
-            if result:
-                config().debuglog = 'debug.log'
-            else:
-                config().debuglog = None
+        if answer == 'Yes' and not getattr(config(),
+                                           self.item_attr+'log'):
+            debuglog = self.item_attr+'.log'
 
-            config().save()
+        setattr(config(), self.item_attr+'log', debuglog)
+        super().do_action(answer)
 
         return self.origin
-
-    def update_welcome(self):
-        self.welcome = "Set debug mode to " + str(not config().debug) + "?"
 
 
 class CoverLetterDir(MenuFunction):
