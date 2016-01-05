@@ -1,7 +1,11 @@
 import sys
+import os
 
 from . import utility
 from . import question
+from . import configurator
+from tkinter import *
+from tkinter import filedialog
 from .configurator import get_config as config
 
 
@@ -76,8 +80,9 @@ class Menu(object):
 
         if self.option_back:
             li.pop()
-        if result == go_back:
-            return self.origin
+
+            if result == go_back:
+                return self.origin
 
         return result
 
@@ -105,6 +110,25 @@ class MenuFunction(Menu):
         return self.origin
 
 
+# ============================================================================
+# --------------------------------- Settings ---------------------------------
+class ToggleCopy(MenuFunction):
+
+    name = 'Copy to Clipboard by Default'
+    options = ['Yes', 'No']
+
+    def do_action(self, answer):
+        if answer == 'Yes':
+            config().copy = not config().copy
+            config().save()
+
+        return self.origin
+
+    def update_welcome(self):
+        self.welcome = "Set copy by default to " + str(not config().copy) + \
+            '?'
+
+
 class ToggleDebug(MenuFunction):
 
     name = 'Debug Mode'
@@ -128,9 +152,56 @@ class ToggleDebug(MenuFunction):
         self.welcome = "Set debug mode to " + str(not config().debug) + "?"
 
 
+class CoverLetterDir(MenuFunction):
+
+    name = 'Cover Letter Directory'
+    welcome = "Please select a directory where your cover letters & " + \
+        "templates are..."
+    options = ['Yes', 'No']
+    option_back = None
+
+    def enter(self):
+        default_path = configurator.Config().path_letters
+
+        utility.clear_screen()
+        print(self.welcome)
+        result = self.do_action()
+
+        if not result and config().path_letters != default_path:
+            old_welcome = self.welcome
+
+            self.welcome = "Current path: " + config().path_letters + "\n" + \
+                "Default path: " + default_path + "\n\n" + \
+                "No selection was made, reset back to default?"
+
+            if self.get_answer(self.options) == 'Yes':
+                config().path_letters = default_path
+                config().save()
+
+            self.welcome = old_welcome
+
+        return self.origin
+
+    def do_action(self):
+        root = Tk()
+        root.withdraw()
+
+        path = filedialog.askdirectory()
+        root.destroy()
+
+        if path:
+            path = os.path.abspath(path)
+            config().path_letters = path
+            config().save
+
+        return path
+
+
 class Settings(Menu):
     name = 'Settings'
     local_map = WonderousMap([ToggleDebug(),
+                              ToggleCopy(),
+                              CoverLetterDir(),
                               ])
 
     def get_current_settings(self):
