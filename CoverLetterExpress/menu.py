@@ -166,7 +166,8 @@ class CoverLetterDir(MenuFunction):
 
     name = 'Cover Letter Directory'
     welcome = "Please select a directory where your cover letters & " + \
-        "templates are..."
+        "templates are, if the current path is not the default, then " + \
+        "exit the window to be prompted to set back to default..."
     options = ['Yes', 'No']
     option_back = None
 
