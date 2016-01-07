@@ -33,10 +33,10 @@ class Config(object):
 
     def __init__(self,
                  path_letters='cover letters', file_type_letters='.txt',
-                 greeting="To Whom It May Concern", copy=None,
+                 greeting="To Whom It May Concern", copy=False,
                  debug=False, debuglog=None,
                  ):
-        # designated path to the directory containing the cover letter .txt's
+        # designated path to the directory containing the cover letter
         self.path_letters = default_path(path_letters)
 
         self.greeting = greeting
@@ -52,7 +52,7 @@ class Config(object):
         if self.debuglog:
             filepath = os.path.join(default_path(), self.debuglog)
             with open(filepath, 'a') as f:
-                f.write('['+str(datetime.datetime.now())+'] ' + result)
+                f.write('['+str(datetime.datetime.now())+'] ' + result + '\n')
                 f.close()
 
         return result

@@ -1,9 +1,9 @@
 import os
 
-from LazyLetter import filewalker
-from LazyLetter import configurator
+from CoverLetterExpress import filewalker
+from CoverLetterExpress import configurator
 from nose.tools import *
-from LazyLetter.configurator import get_config as config
+from CoverLetterExpress.configurator import get_config as config
 
 test_lettername1 = ['test_awesomecompany' + config().file_type_letters,
                     "I think {company} is great!\n\n\nSincerely,\nMe",
