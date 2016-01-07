@@ -1,17 +1,6 @@
 import os
 
 
-def list_options(options, pre_spaces=4):
-    result = ""
-    for i, option in enumerate(options):
-        result += ' '*pre_spaces + '[' + str(i+1) + '] ' + option
-
-        if not i == len(options)-1:
-            result += '\n'
-
-    return result
-
-
 def clear_screen():
     try:
         clear = os.system('cls')

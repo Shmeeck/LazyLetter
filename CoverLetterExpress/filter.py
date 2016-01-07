@@ -13,7 +13,6 @@ def debug_timer(func):
     def inner(*args, **kwargs):
         if config().debug:
             start_time = datetime.datetime.now()
-
             result = func(*args, **kwargs)
 
             delta = datetime.datetime.now() - start_time
@@ -32,7 +31,7 @@ def debug_timer(func):
     return inner
 
 
-def filter_each_letter(li, answer):
+def each_letter(li, answer):
     """
     Takes a list of lower-cased options and a string and returns back a list
     of options that only contain all letters of the string with order.
@@ -57,7 +56,7 @@ def filter_each_letter(li, answer):
     return result
 
 
-def filter_entire_string(li, answer):
+def entire_string(li, answer):
     """
     Attempts to match a given response's entire case within a list of values,
     returns any successful matches. An exact answer to list element match takes
@@ -78,7 +77,7 @@ def filter_entire_string(li, answer):
     return result
 
 
-def filter_index(li, answer):
+def index(li, answer):
     """
     Converts an string with an int into an int and checks with the bounds of
     the given lists.
@@ -100,7 +99,7 @@ def filter_index(li, answer):
 
 
 @debug_timer
-def filter_all(li, answer):
+def everything(li, answer):
     """
     Takes in a list of options and a user response which can be either an
     int or any combination of letters within a certain option, or options.
@@ -155,7 +154,7 @@ def handler(li, question,
         result = li
 
         answer = load_in().get(result, question)
-        result = filter_all(result, answer)
+        result = everything(result, answer)
 
         if not result or not answer:
             print(msg_noresult)
