@@ -107,20 +107,20 @@ def everything(li, answer):
     Returns a list of any matching values.
     """
     # check, and return single answer or [], if int
-    result = filter_index(li, answer)
+    result = index(li, answer)
 
     if result is not None:
         return result
 
     # search by each letter in the answer, order of letters matter
     # (by order I mean, ingsttse will not return settings)
-    result = filter_each_letter(li, answer)
+    result = each_letter(li, answer)
     potential_result = []
 
     if len(result) > 1:
         # last attempt to narrow down the list by trying to match the
         # entire answer within the each list element
-        potential_result = filter_entire_string(result, answer)
+        potential_result = entire_string(result, answer)
 
         # only return if successful matches were found
         if len(potential_result) > 0:
