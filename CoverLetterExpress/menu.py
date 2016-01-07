@@ -2,7 +2,7 @@ import sys
 import os
 
 from . import utility
-from . import question
+from . import filter_answer
 from . import configurator
 from tkinter import *
 from tkinter import filedialog
@@ -73,7 +73,7 @@ class Menu(object):
             li.append(go_back)
 
         self.update_welcome()
-        result = question.handler(li, self.welcome,
+        result = filter_answer.handler(li, self.welcome,
                                   self.option_redo, self.msg_noresult,
                                   self.msg_multiple,
                                   )

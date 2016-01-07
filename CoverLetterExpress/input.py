@@ -1,4 +1,4 @@
-from .utility import list_options
+from .ask import list_options
 from .configurator import get_config as config
 
 
