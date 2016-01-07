@@ -105,9 +105,9 @@ class Config(object):
         result = cls()
         filepath = os.path.join(result._path_config, result._name_config)
 
-        f = open(filepath, 'r')
-        result._load_dict(json.loads(f.read()))
-        f.close()
+        with open(filepath, 'r') as f:
+            result._load_dict(json.loads(f.read()))
+            f.close()
 
         return result
 

@@ -2,7 +2,6 @@ import datetime
 
 from . import utility
 from .configurator import get_config as config
-from .input import load_in
 
 
 def debug_timer(func):
@@ -127,59 +126,3 @@ def everything(li, answer):
             return potential_result
 
     return result
-
-
-def handler(li, question,
-            option_redo,
-            msg_noresult,
-            msg_multiple=None,
-            ):
-    """
-    Accepts a list of options and a question to display to the user, an
-    enumerated version of the list is always displayed after the question,
-    the function will continuously filter the user's answer and the list
-    until the following is satisfied:
-        1. The result is not blank
-        2. There is only a single result
-
-    If there are multiple options in the result after filtering, a
-    recursive call is made with the remaining options only if the
-    options were narrowed since the last recurse, otherwise, continue.
-    An option to leave the narrowed listings is made available in this
-    stage of filtering.
-    """
-    result = []
-
-    while True:
-        result = li
-
-        answer = load_in().get(result, question)
-        result = everything(result, answer)
-
-        if not result or not answer:
-            print(msg_noresult)
-            continue
-        elif len(result) > 1:
-            # add the ability to display the whole list again
-            if not li[len(li)-1] == option_redo:
-                result.append(option_redo)
-            elif result == li[:len(li)-1]:
-                continue
-
-            # let's go again with only the remaining options
-            if not msg_multiple:
-                msg_multiple = question
-
-            result = handler(result, msg_multiple,
-                             option_redo,
-                             msg_noresult,
-                             )
-
-        if result == option_redo:
-            # we gotta go back to the start of the stack...
-            if not li[len(li)-1] == option_redo:
-                continue
-
-        break
-
-    return result[0]
