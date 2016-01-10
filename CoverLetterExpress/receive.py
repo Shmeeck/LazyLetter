@@ -1,8 +1,8 @@
-from .utility import list_options
+from . import ask
 from .configurator import get_config as config
 
 
-class Womp(object):
+class UserInput(object):
 
     def __init__(self, test_inputs=None):
         self.test_inputs = test_inputs
@@ -11,15 +11,11 @@ class Womp(object):
     def get(self, li=None, question=None):
         if self.test_inputs:
             return self.get_next()
-        else:
-            if question:
-                print(question)
-            if li:
-                print(list_options(li))
 
-            result = input(config().prompt)
+        ask.question(li, question)
+        result = input(config().prompt)
 
-            return result
+        return result
 
     def get_next(self):
         result = self.test_inputs[self._i]
@@ -32,8 +28,8 @@ class Womp(object):
         self._i = 0
 
 
-main_womper = Womp()
+main_womper = UserInput()
 
 
-def load_in():
+def user_input():
     return main_womper

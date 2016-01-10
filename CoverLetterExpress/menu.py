@@ -2,7 +2,7 @@ import sys
 import os
 
 from . import utility
-from . import question
+from . import answer
 from . import configurator
 from tkinter import *
 from tkinter import filedialog
@@ -31,6 +31,27 @@ class WonderousMap(object):
     def get(self, key, on_fail=None):
         return self.themap.get(key, on_fail)
 
+    def next(self, start, origin=None):
+        destination = self.get(start)
+        heading = start
+
+        if destination:
+            destination.origin = origin
+
+        while True:
+            if not destination:
+                break
+
+            heading = destination.enter()
+
+            destination = self.get(heading)
+
+            if destination:
+                destination.origin = origin
+                origin = heading
+
+        return heading
+
 
 class Menu(object):
 
@@ -41,50 +62,31 @@ class Menu(object):
     itself.
     """
 
-    msg_multiple = "Your answer matched more than one possible option:"
-    msg_noresult = "Sorry, couldn't understand that..."
-    option_redo = "None of These"
-    option_back = "Back to {}"
-
     origin = ''
     welcome = "This is a welcome message of a base Menu object:"
     name = 'Base Menu'
     local_map = WonderousMap()
+    option_back = ["Go Back"]
 
     def __init__(self):
         self.update_welcome()
 
     def enter(self):
         while True:
-            result = self.get_answer(self.local_map.keys)
+            utility.clear_screen()
+            self.update_welcome()
+            result = answer.down_to_one(self.local_map.keys+self.option_back,
+                                        self.welcome)
+
+            if [result] == self.option_back:
+                return self.origin
+
             result = navigate(self.local_map, result, self.name)
 
             if result == self.name:
                 continue
             else:
                 return result
-
-    def get_answer(self, li):
-        utility.clear_screen()
-        go_back = ''
-
-        if self.option_back:
-            go_back = self.option_back.format(self.origin)
-            li.append(go_back)
-
-        self.update_welcome()
-        result = question.handler(li, self.welcome,
-                                  self.option_redo, self.msg_noresult,
-                                  self.msg_multiple,
-                                  )
-
-        if self.option_back:
-            li.pop()
-
-            if result == go_back:
-                return self.origin
-
-        return result
 
     def update_welcome(self):
         pass
@@ -101,7 +103,7 @@ class MenuFunction(Menu):
     options = []
 
     def enter(self):
-        result = self.get_answer(self.options)
+        result = answer.down_to_one(self.options, self.welcome)
         return self.do_action(result)
 
     def do_action(self, answer):
@@ -114,7 +116,7 @@ class MenuToggleConfigBoolean(MenuFunction):
 
     name = 'Base boolen toggle MenuFunction'
     options = ['Yes', 'No']
-    option_back = False
+    option_back = []
     item_attr = None
 
     def do_action(self, answer):
@@ -169,7 +171,7 @@ class CoverLetterDir(MenuFunction):
         "templates are, if the current path is not the default, then " + \
         "exit the window to be prompted to set back to default..."
     options = ['Yes', 'No']
-    option_back = None
+    option_back = []
 
     def enter(self):
         default_path = configurator.Config().path_letters
@@ -185,7 +187,7 @@ class CoverLetterDir(MenuFunction):
                 "Default path: " + default_path + "\n\n" + \
                 "No selection was made, reset back to default?"
 
-            if self.get_answer(self.options) == 'Yes':
+            if answer.down_to_one(self.options, self.welcome) == 'Yes':
                 config().path_letters = default_path
                 config().save()
 
@@ -203,7 +205,7 @@ class CoverLetterDir(MenuFunction):
         if path:
             path = os.path.abspath(path)
             config().path_letters = path
-            config().save
+            config().save()
 
         return path
 
@@ -240,7 +242,7 @@ class MainMenu(Menu):
                   "option, or option number, below:"
                   )
     name = 'Main Menu'
-    option_back = None
+    option_back = []
 
     def __init__(self):
         self.local_map = WonderousMap([Settings(),
@@ -260,25 +262,6 @@ def navigate(wonderous_map, start, origin):
     map and sends said key up to the previous active map or exits the function
     if we're already at the world_map.
     """
-    destination = wonderous_map.get(start)
-    heading = start
-
-    if destination:
-        destination.origin = origin
-
-    while True:
-        if not destination:
-            break
-
-        heading = destination.enter()
-
-        destination = wonderous_map.get(heading)
-
-        if destination:
-            destination.origin = origin
-            origin = heading
-
-    return heading
 
 
 def hub_navigation():

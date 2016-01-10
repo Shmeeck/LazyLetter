@@ -1,22 +1,21 @@
-from CoverLetterExpress import question
-from CoverLetterExpress import utility
+from CoverLetterExpress import search
 from nose.tools import *
 
 
-def test_list_options():
-    """
-    should accept a list of strings and return a specially formatted list of
-    strings with inline 1-based enumeration, also accepts a prefix spacing int
-    """
-    test_list = ['Poopy', 'I Like Cake', 'test A Pie']
-    result = utility.list_options(test_list, 3)
+# def test_list_options():
+    # """
+    # should accept a list of strings and return a specially formatted list of
+    # strings with inline 1-based enumeration, also accepts a prefix spacing int
+    # """
+    # test_list = ['Poopy', 'I Like Cake', 'test A Pie']
+    # result = utility.list_options(test_list, 3)
 
-    assert_equals(result[:4], '   [')
-    assert_in('[1] Poopy', result)
-    assert_in('[3] test A Pie', result)
+    # assert_equals(result[:4], '   [')
+    # assert_in('[1] Poopy', result)
+    # assert_in('[3] test A Pie', result)
 
 
-def test_filter_each_letter():
+def test_each_letter():
     """
     should accept a list of strings and a letter and return a list consisting
     of only the items that match the letter, the matching option also omits 1
@@ -28,24 +27,24 @@ def test_filter_each_letter():
     test_list = ['i like caake', 'Test Bakery',
                  'who put this here', 'WAFFLES',
                  '']
-    result = question.filter_each_letter(test_list, 'a')
+    result = search.each_letter(test_list, 'a')
 
     assert_equals('i like caake', result[0])
     assert_equals('Test Bakery', result[1])
     assert_equals('WAFFLES', result[2])
     assert_equals(len(result), 3)
 
-    result = question.filter_each_letter(test_list, 'WAFF')
+    result = search.each_letter(test_list, 'WAFF')
     assert_equals('WAFFLES', result[0])
 
-    result = question.filter_each_letter(test_list, 'who put this here')
+    result = search.each_letter(test_list, 'who put this here')
     assert_equals('who put this here', result[0])
 
-    result = question.filter_each_letter(test_list, 'el')
+    result = search.each_letter(test_list, 'el')
     assert_equals([], result)
 
 
-def test_filter_entire_string():
+def test_entire_string():
     """
     when given a list and an answer as a string, it should return:
         1.  a list with only matches of the full answer
@@ -58,22 +57,22 @@ def test_filter_entire_string():
                  'Stripes stripes stripes', 'Cake is greater than pie',
                  'I like pie', 'LIKE']
     # --- 1 ---
-    assert_equals(question.filter_entire_string(test_list, 'sTrIpEs'),
+    assert_equals(search.entire_string(test_list, 'sTrIpEs'),
                   [test_list[0], test_list[1], test_list[2],
                    ])
-    assert_equals(question.filter_entire_string(test_list, 'sTRiPES stripES'),
+    assert_equals(search.entire_string(test_list, 'sTRiPES stripES'),
                   [test_list[2]])
 
     # --- 2 ---
-    assert_equals(question.filter_entire_string(test_list, 'Pie is greater'),
+    assert_equals(search.entire_string(test_list, 'Pie is greater'),
                   [])
 
     # --- 3 ---
-    assert_equals(question.filter_entire_string(test_list, 'like'),
+    assert_equals(search.entire_string(test_list, 'like'),
                   [test_list[5]])
 
 
-def test_filter_index():
+def test_index():
     """
     when given a list and an answer as an int()-able string, it should return:
         1.  A list with a single string of the matching result, the function
@@ -85,17 +84,17 @@ def test_filter_index():
     test_list = ['Woah', 'There', 'Slow', 'Down!']
 
     # --- 1 ---
-    assert_equals(question.filter_index(test_list, 2), [test_list[1]])
+    assert_equals(search.index(test_list, 2), [test_list[1]])
 
     # --- 2 ---
-    assert_equals(question.filter_index(test_list, 'pie'), None)
+    assert_equals(search.index(test_list, 'pie'), None)
 
     # --- 3 ---
-    assert_equals(question.filter_index(test_list, -99), [])
-    assert_equals(question.filter_index(test_list, 1029392), [])
+    assert_equals(search.index(test_list, -99), [])
+    assert_equals(search.index(test_list, 1029392), [])
 
 
-def test_filter_all():
+def test_everything():
     """
     when given a list of options and an answer (either an int or string), this
     should return:
@@ -115,22 +114,22 @@ def test_filter_all():
                  'Save and Exit']
 
     # --- 1 ---
-    assert_equals(question.filter_all(test_list, 'gENe'), [test_list[0]])
-    assert_equals(question.filter_all(test_list, '2'), [test_list[1]])
+    assert_equals(search.everything(test_list, 'gENe'), [test_list[0]])
+    assert_equals(search.everything(test_list, '2'), [test_list[1]])
 
     # --- 2 ---
-    assert_equals(question.filter_all(test_list, 'setq'), [])
-    assert_equals(question.filter_all(test_list, '6'), [])
+    assert_equals(search.everything(test_list, 'setq'), [])
+    assert_equals(search.everything(test_list, '6'), [])
 
     # --- 3 ---
-    assert_equals(question.filter_all(test_list, 'I'), [test_list[1],
-                                                              test_list[2],
-                                                              test_list[3],
-                                                              test_list[4]
-                                                              ])
+    assert_equals(search.everything(test_list, 'I'), [test_list[1],
+                                                      test_list[2],
+                                                      test_list[3],
+                                                      test_list[4]
+                                                      ])
 
     # --- 4 ---
-    assert_equals(question.filter_all(test_list, 'EAT'), [test_list[3]])
+    assert_equals(search.everything(test_list, 'EAT'), [test_list[3]])
 
     # --- 5 ---
-    assert_equals(question.filter_all(test_list, 'exit'), [test_list[2]])
+    assert_equals(search.everything(test_list, 'exit'), [test_list[2]])
