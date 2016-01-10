@@ -31,6 +31,27 @@ class WonderousMap(object):
     def get(self, key, on_fail=None):
         return self.themap.get(key, on_fail)
 
+    def next(self, start, origin=None):
+        destination = self.get(start)
+        heading = start
+
+        if destination:
+            destination.origin = origin
+
+        while True:
+            if not destination:
+                break
+
+            heading = destination.enter()
+
+            destination = self.get(heading)
+
+            if destination:
+                destination.origin = origin
+                origin = heading
+
+        return heading
+
 
 class Menu(object):
 
@@ -166,7 +187,7 @@ class CoverLetterDir(MenuFunction):
                 "Default path: " + default_path + "\n\n" + \
                 "No selection was made, reset back to default?"
 
-            if self.get_answer(self.options) == 'Yes':
+            if answer.down_to_one(self.options, self.welcome) == 'Yes':
                 config().path_letters = default_path
                 config().save()
 
@@ -184,7 +205,7 @@ class CoverLetterDir(MenuFunction):
         if path:
             path = os.path.abspath(path)
             config().path_letters = path
-            config().save
+            config().save()
 
         return path
 
@@ -241,25 +262,6 @@ def navigate(wonderous_map, start, origin):
     map and sends said key up to the previous active map or exits the function
     if we're already at the world_map.
     """
-    destination = wonderous_map.get(start)
-    heading = start
-
-    if destination:
-        destination.origin = origin
-
-    while True:
-        if not destination:
-            break
-
-        heading = destination.enter()
-
-        destination = wonderous_map.get(heading)
-
-        if destination:
-            destination.origin = origin
-            origin = heading
-
-    return heading
 
 
 def hub_navigation():
